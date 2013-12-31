@@ -15,6 +15,7 @@
 			<dependency>innowork-core[3.1]</dependency>
             <dependency>innowork-groupware</dependency>
 			<dependency>phplotlib[5.0-3]</dependency>
+			<suggestion>innowork-timesheet</suggestion>
 		</dependencies>
 		<options>
 			<!-- <option></option> -->
@@ -61,8 +62,6 @@
 			file="innowork_projects.xml" />
 		<domaintable name="innowork_projects_fields_values"
 			file="innowork_projects_fields_values.xml" />
-        <domaintable name="innowork_projects_timesheet"
-            file="innowork_projects_timesheet.xml" />
 
 		<class name="innowork/projects/InnoworkProject.php" />
 		<class name="innowork/projects/InnoworkProjectField.php" />

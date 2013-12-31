@@ -147,7 +147,7 @@ function action_editproject( $eventData )
 $gAction_disp->addEvent(
     'removeproject',
     'action_removeproject'
-    );
+);
 function action_removeproject( $eventData )
 {
     global $gLocale, $gPage_status;
@@ -156,7 +156,7 @@ function action_removeproject( $eventData )
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
-        );
+    );
 
     if ( $innowork_project->Remove(
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
@@ -165,28 +165,24 @@ function action_removeproject( $eventData )
 }
 
 $gAction_disp->addEvent(
-		'newtsrow',
-		'action_newtsrow'
+	'newtsrow',
+	'action_newtsrow'
 );
 function action_newtsrow(
-		$eventData
-)
-{
-	global $gPage_status, $gLocale;
+	$eventData
+) {
 
-	$dossier = new InnoworkProject(
-			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
-			$eventData['projectid']
-	);
-
+	$timesheet = new \Innowork\Timesheet\Timesheet();
+	
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
 	);
 
-	$date_array = $locale_country->getDateArrayFromShortDatestamp( $eventData['date'] );
+	$date_array = $locale_country->getDateArrayFromShortDatestamp($eventData['date']);
 
-	$dossier->addTimesheetRow(
+	$timesheet->addTimesheetRow(
+			InnoworkProject::ITEM_TYPE,
+			$eventData['projectid'],
 			$eventData['user'],
 			$date_array,
 			$eventData['activitydesc'],
@@ -203,23 +199,16 @@ $gAction_disp->addEvent(
 );
 function action_changetsrow(
 		$eventData
-)
-{
-	global $gPage_status, $gLocale;
-
-	$dossier = new InnoworkProject(
-			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
-			$eventData['projectid']
-	);
+) {
+	$timesheet = new \Innowork\Timesheet\Timesheet();
 
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
 	);
 
-	$date_array = $locale_country->getDateArrayFromShortDatestamp( $eventData['date'] );
+	$date_array = $locale_country->getDateArrayFromShortDatestamp($eventData['date']);
 
-	$dossier->changeTimesheetRow(
+	$timesheet->changeTimesheetRow(
 			$eventData['rowid'],
 			$eventData['user'],
 			$date_array,
@@ -236,17 +225,9 @@ $gAction_disp->addEvent(
 );
 function action_removetsrow(
 		$eventData
-)
-{
-	global $gPage_status, $gLocale;
-
-	$dossier = new InnoworkProject(
-			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
-			$eventData['projectid']
-	);
-
-	$dossier->deleteTimesheetRow( $eventData['rowid'] );
+) {
+	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet->deleteTimesheetRow($eventData['rowid']);
 }
 
 $gAction_disp->addEvent(
@@ -255,17 +236,11 @@ $gAction_disp->addEvent(
 );
 function action_consolidate(
 		$eventData
-)
-{
+) {
 	global $gPage_status, $gLocale;
 
-	$dossier = new InnoworkProject(
-			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
-			$eventData['projectid']
-	);
-
-	$dossier->consolidateTimesheetRow( $eventData['rowid'] );
+	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet->consolidateTimesheetRow($eventData['rowid']);
 }
 
 $gAction_disp->addEvent(
@@ -274,17 +249,9 @@ $gAction_disp->addEvent(
 );
 function action_unconsolidate(
 		$eventData
-)
-{
-	global $gPage_status, $gLocale;
-
-	$dossier = new InnoworkProject(
-			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
-			$eventData['projectid']
-	);
-
-	$dossier->unconsolidateTimesheetRow( $eventData['rowid'] );
+) {
+	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet->unconsolidateTimesheetRow( $eventData['rowid'] );
 }
 
 $gAction_disp->Dispatch();
@@ -1328,9 +1295,20 @@ function main_showproject( $eventData )
             $done_label = 'setdone.button';
         }
 
-        $tabs[0]['label'] = $gLocale->getStr('projectdata.tab');
-        	$tabs[1]['label'] = $gLocale->getStr('timesheet.tab');
-        	$tabs[2]['label'] = $gLocale->getStr('otherprojects.tab');
+        $tab_counter = 0;
+        $tabs[$tab_counter++]['label'] = $gLocale->getStr('projectdata.tab');
+        
+        $app_deps = new \Innomatic\Application\ApplicationDependencies(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
+        );
+        if ($app_deps->isInstalled('innowork-timesheet')) {
+        	$ts_installed = true;
+        	$tabs[$tab_counter++]['label'] = $gLocale->getStr('timesheet.tab');
+        } else {
+        	$ts_installed = false;
+        }
+        
+        $tabs[$tab_counter++]['label'] = $gLocale->getStr('otherprojects.tab');
         
     $gXml_def .=
 '<horizgroup>
@@ -1675,9 +1653,12 @@ function main_showproject( $eventData )
 
           </children>
         </horizgroup>
-                    </children></vertgroup>
-
-
+                    </children></vertgroup>';
+            
+        // Timesheet tab
+        
+		if ($ts_installed) {
+            $gXml_def .= '
                     <vertgroup>
                       <children>
 
@@ -1705,7 +1686,10 @@ function main_showproject( $eventData )
                 		
     
                       </children>
-                    </vertgroup>
+                    </vertgroup>';
+		}
+
+            $gXml_def .= '
                 		
 <!-- Related dossiers -->
                 		
@@ -1935,11 +1919,12 @@ function main_timesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet = $innowork_dossier->getTimesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
 
-	$users_query = InnoworkProject::getTimesheetUsers();
+	$users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
 
 	$users = array();
 
@@ -1951,7 +1936,7 @@ function main_timesheet(
 		$users_query->moveNext();
 	}
 
-	$cost_types = InnoworkProject::getElencoCodiciImponibili();
+	$cost_types = \Innowork\Timesheet\Timesheet::getElencoCodiciImponibili();
 
 	$headers[0]['label'] = $gLocale->getStr( 'date.header' );
 	$headers[1]['label'] = $gLocale->getStr( 'useritem.header' );
@@ -2337,12 +2322,13 @@ function main_timesheetrow(
 			$eventData['projectid']
 	);
 
-	$timesheet = $innowork_dossier->getTimesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 
 	// Users list
 
-	$users_query = InnoworkProject::getTimesheetUsers();
+	$users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
 
 	$users = array();
 
@@ -2354,7 +2340,7 @@ function main_timesheetrow(
 		$users_query->moveNext();
 	}
 
-	$cost_types = InnoworkProject::getElencoCodiciImponibili();
+	$cost_types = \Innowork\Timesheet\Timesheet::getElencoCodiciImponibili();
 
 	$headers[0]['label'] = $gLocale->getStr( 'date.header' );
 	$headers[1]['label'] = $gLocale->getStr( 'useritem.header' );
@@ -2573,11 +2559,12 @@ function main_printtimesheet(
 
 	$cust_data = $innowork_customer->getItem();
 
-	$timesheet = $innowork_dossier->getTimesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
 
-	$users_query = InnoworkProject::getTimesheetUsers();
+	$users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
 
 	$users = array();
 
@@ -2589,7 +2576,7 @@ function main_printtimesheet(
 		$users_query->moveNext();
 	}
 
-	$cost_types = InnoworkProject::getElencoCodiciImponibili();
+	$cost_types = \Innowork\Timesheet\Timesheet::getElencoCodiciImponibili();
 
 	$headers[0]['label'] = $gLocale->getStr( 'date.header' );
 	$headers[1]['label'] = $gLocale->getStr( 'useritem.header' );
@@ -2652,23 +2639,21 @@ function main_exporttimesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet = $innowork_dossier->getTimesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
 
-	$users_query = InnoworkProject::getTimesheetUsers();
-
+	$users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
 	$users = array();
 
-	while ( !$users_query->eof )
-	{
+	while (!$users_query->eof) {
 		$users[$users_query->getFields( 'id' )] = $users_query->getFields( 'lname' ).
 		' '.$users_query->getFields( 'fname' );
-
 		$users_query->moveNext();
 	}
 
-	$cost_types = InnoworkProject::getElencoCodiciImponibili();
+	$cost_types = \Innowork\Timesheet\Timesheet::getElencoCodiciImponibili();
 
 	$headers[0]['label'] = $gLocale->getStr( 'date.header' );
 	$headers[1]['label'] = $gLocale->getStr( 'useritem.header' );
