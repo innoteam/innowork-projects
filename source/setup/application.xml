@@ -61,6 +61,8 @@
 			file="innowork_projects.xml" />
 		<domaintable name="innowork_projects_fields_values"
 			file="innowork_projects_fields_values.xml" />
+        <domaintable name="innowork_projects_timesheet"
+            file="innowork_projects_timesheet.xml" />
 
 		<class name="innowork/projects/InnoworkProject.php" />
 		<class name="innowork/projects/InnoworkProjectField.php" />

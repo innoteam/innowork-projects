@@ -356,6 +356,204 @@ class InnoworkProject extends InnoworkItem {
 
         return $result;
     }
+    
+    public function getTimesheet() {
+    	$result = array();
+    	 
+    	if ( $this->mItemId )
+    	{
+    		$timesheet_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    				'SELECT * '.
+    				'FROM innowork_projects_timesheet '.
+    				'WHERE projectid='.$this->mItemId.' '.
+    				'ORDER BY activitydate DESC'
+    		);
+    		 
+    		while (!$timesheet_query->eof) {
+    			$result[] = array(
+    					'id' => $timesheet_query->getFields( 'id' ),
+    					'userid' => $timesheet_query->getFields( 'userid' ),
+    					'description' => $timesheet_query->getFields( 'description' ),
+    					'activitydate' => InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getDateArrayFromTimestamp(
+    							$timesheet_query->getFields( 'activitydate' )
+    					),
+    					'spenttime' => $timesheet_query->getFields( 'spenttime' ),
+    					'cost' => $timesheet_query->getFields( 'cost' ),
+    					'costtype' => $timesheet_query->getFields( 'costtype' ),
+    					'reportingperiod' => $timesheet_query->getFields( 'reportingperiod' ),
+    					'consolidated' => $timesheet_query->getFields( 'consolidated' )
+    			);
+    			 
+    			$timesheet_query->moveNext();
+    		}
+    	}
+    	 
+    	return $result;
+    }
+    
+    public function addTimesheetRow(
+    		$userId,
+    		$activityDate,
+    		$description,
+    		$spentTime,
+    		$cost,
+    		$costType,
+    		$reportingPeriod
+    ) {    	 
+    	if (!$this->mItemId) {
+    		return false;
+    	}
+    	
+    	if (!strlen($costType)) $costType = 0;
+    	if (!strlen($userId)) $userId = InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId();
+    
+    	$timestamp = $this->mrDomainDA->getTimestampFromDateArray( $activityDate );
+    	$domainDa = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess();
+    
+    	$result = $this->mrDomainDA->execute(
+    			'INSERT INTO innowork_projects_timesheet VALUES('.
+    			$domainDa->getNextSequenceValue( 'innowork_projects_timesheet_id_seq' ).','.
+    			$this->mItemId.','.
+    			$userId.','.
+    			$domainDa->formatText( $timestamp ).','.
+    			$domainDa->formatText( $description ).','.
+    			$domainDa->formatText( $spentTime ).','.
+    			$domainDa->formatText( $cost ).','.
+    			$costType.','.
+    			$domainDa->formatText( $reportingPeriod ).','.
+    			$domainDa->formatText( $domainDa->fmtfalse ).
+    			')'
+    	);
+    
+    	if ($result) {
+    		require_once('innowork/core/InnoworkItemLog.php');
+    		$log = new InnoworkItemLog(
+    				$this->mItemType,
+    				$this->mItemId
+    		);
+    			 
+    		$log->logChange( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserName() );
+    	}
+    	 
+    	return $result;
+    }
+    
+    public function changeTimesheetRow(
+    		$rowId,
+    		$userId,
+    		$activityDate,
+    		$description,
+    		$spentTime,
+    		$cost,
+    		$costType
+    ) {
+    	$result = false;
+    
+    	if ($this->mItemId)
+    	{
+    		if (!strlen($costType)) $costType = 0;
+    		if (!strlen($userId)) $userId = InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId();
+    
+    		$timestamp = $this->mrDomainDA->getTimestampFromDateArray( $activityDate );
+    		$domainDa = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess();
+    
+    		$result = $this->mrDomainDA->execute(
+    				'UPDATE innowork_projects_timesheet SET '.
+    				'userid = '.$userId.', '.
+    				'activitydate = '.$domainDa->formatText( $timestamp ).', '.
+    				'description = '.$domainDa->formatText( $description ).', '.
+    				'spenttime = '.$domainDa->formatText( $spentTime ).', '.
+    				'cost = '.$domainDa->formatText( $cost ).', '.
+    				'costtype = '.$costType.' '.
+    				'WHERE id='.$rowId.' AND projectid='.$this->mItemId
+    		);
+    
+    		if ($result) {
+    			require_once('innowork/core/InnoworkItemLog.php');
+    			$log = new InnoworkItemLog(
+    					$this->mItemType,
+    					$this->mItemId
+    			);
+    
+    			$log->LogChange( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserName() );
+    		}
+    	}
+    
+    	return $result;
+    }
+    
+    public function consolidateTimesheetRow($rowId) {
+    	$result = false;
+    	$rowId = (int)$rowId;
+    
+    	if ( $rowId )
+    	{
+    		$result = $this->mrDomainDA->Execute(
+    				'UPDATE innowork_projects_timesheet '.
+    				'SET consolidated = '.$this->mrDomainDA->formatText( $this->mrDomainDA->fmttrue ).' '.
+    				'WHERE id='.$rowId
+    		);
+    	}
+    
+    	return $result;
+    }
+    
+    public function unconsolidateTimesheetRow($rowId) {
+    	$result = false;
+    	$rowId = (int)$rowId;
+    
+    	if ($rowId) {
+    		$result = $this->mrDomainDA->execute(
+    				'UPDATE innowork_projects_timesheet '.
+    				'SET consolidated = '.$this->mrDomainDA->formatText( $this->mrDomainDA->fmtfalse ).' '.
+    				'WHERE id='.$rowId
+    		);
+    	}
+    
+    	return $result;
+    }
+    
+    public function deleteTimesheetRow($rowId) {
+    	$result = false;
+    	$rowId = (int)$rowId;
+    	 
+    	if ($rowId) {
+    		$result = $this->mrDomainDA->execute(
+    				'DELETE FROM innowork_projects_timesheet '.
+    				'WHERE id='.$rowId
+    		);
+    		 
+    		if ( $result )
+    		{
+    			require_once('innowork/core/InnoworkItemLog.php');
+    			$log = new InnoworkItemLog(
+    					$this->mItemType,
+    					$this->mItemId
+    			);
+    			 
+    			$log->logChange(InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserName());
+    		}
+    	}
+    	 
+    	return $result;
+    }
+    
+    public static function getTimesheetUsers() {
+    	return InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    			'SELECT domain_users.id AS id,fname,lname,username '.
+    			'FROM domain_users '.
+    			'WHERE username<>'.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText(User::getAdminUsername(InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDomainId())).' '.
+    			'ORDER BY lname,fname' );
+    }
+    
+    public static function getElencoCodiciImponibili() {
+    	return array(
+    			0 => '',
+    			1 => 'Imponibile',
+    			2 => 'Non imponibile ex art. 7',
+    			3 => 'Non imponibile ex art. 15'
+    	);
+    }
 }
 
 ?>
