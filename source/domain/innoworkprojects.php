@@ -57,7 +57,7 @@ $gToolbars['projects'] = array(
         ),
     'doneprojects' => array(
         'label' => $gLocale->getStr( 'doneprojects.toolbar' ),
-        'themeimage' => 'listdetailed',
+        'themeimage' => 'listbulletleft',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -66,7 +66,7 @@ $gToolbars['projects'] = array(
         ),
     'newproject' => array(
         'label' => $gLocale->getStr( 'newproject.toolbar' ),
-        'themeimage' => 'filenew',
+        'themeimage' => 'mathadd',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -1743,8 +1743,8 @@ function main_showproject( $eventData )
         			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
         			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         	);
-        	$domain_da = InnomaticContainer::instance('innomaticcontainer')->getDataAccess();
-        	$dossiers_search_query = $domain_da->execute('SELECT * FROM innowork_juris_dossiers WHERE customerid='.$pj_data['customerid'].' ORDER BY id DESC');
+        	$domain_da = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess();
+        	$dossiers_search_query = $domain_da->execute('SELECT * FROM innowork_projects WHERE customerid='.$pj_data['customerid'].' ORDER BY id DESC');
         	 
         	while (!$dossiers_search_query->eof) {
         		$dossiers_search_results[$dossiers_search_query->getFields('id')] = $dossiers_search_query->getFields();
