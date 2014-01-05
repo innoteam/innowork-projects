@@ -1,5 +1,9 @@
 1.2 - 2014/01/02
 ----------------
+NEW FEATURES:
+- Added project number column. (Alex Pagnoni)
+- Added erase filter button. (Alex Pagnoni)
+
 CHANGES:
 - Migration to Innomatic 6. (Alex Pagnoni)
 

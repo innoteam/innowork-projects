@@ -103,6 +103,14 @@ $gToolbars['prefs'] = array(
 //
 $gAction_disp = new WuiDispatcher( 'action' );
 
+$gAction_disp->addEvent('erasefilter', 'action_erasefilter');
+function action_erasefilter($eventData) {
+	$customer_filter_sk = new WuiSessionKey('customer_filter', array('value' => ''));
+	$priority_filter_sk = new WuiSessionKey('priority_filter', array('value' => ''));
+	$status_filter_sk = new WuiSessionKey('status_filter', array('value' => ''));
+	$type_filter_sk = new WuiSessionKey('type_filter', array('value' => ''));
+}
+
 $gAction_disp->addEvent(
     'newproject',
     'action_newproject'
@@ -430,7 +438,7 @@ function main_default( $eventData )
         if ( strlen( $table->mSortBy ) ) $sort_by = $table->mSortBy;
     }
 
-    $headers[0]['label'] = $gLocale->getStr( 'customer.header' );
+    $headers[0]['label'] = $gLocale->getStr( 'project_nr.header' );
     $headers[0]['link'] = WuiEventsCall::buildEventsCallString(
         '',
             array(
@@ -443,7 +451,6 @@ function main_default( $eventData )
                     )
                 )
         );
-
     $headers[1]['label'] = $gLocale->getStr( 'name.header' );
     $headers[1]['link'] = WuiEventsCall::buildEventsCallString(
         '',
@@ -457,26 +464,40 @@ function main_default( $eventData )
                     )
                 )
         );
-    $headers[2]['label'] = $gLocale->getStr( 'priority.header' );
-    $headers[2]['link'] = WuiEventsCall::buildEventsCallString( '',
-            array( array(
+    $headers[2]['label'] = $gLocale->getStr( 'customer.header' );
+    $headers[2]['link'] = WuiEventsCall::buildEventsCallString(
+        '',
+            array(
+                array(
                     'view',
                     'default',
-                    array( 'sortby' => '2' )
-                    ) ) );
-    $headers[3]['label'] = $gLocale->getStr( 'status.header' );
+                    array(
+                        'sortby' => '2'
+                        )
+                    )
+                )
+        );
+
+    $headers[3]['label'] = $gLocale->getStr( 'priority.header' );
     $headers[3]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'view',
                     'default',
                     array( 'sortby' => '3' )
                     ) ) );
-    $headers[4]['label'] = $gLocale->getStr( 'type.header' );
+    $headers[4]['label'] = $gLocale->getStr( 'status.header' );
     $headers[4]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'view',
                     'default',
                     array( 'sortby' => '4' )
+                    ) ) );
+    $headers[5]['label'] = $gLocale->getStr( 'type.header' );
+    $headers[5]['link'] = WuiEventsCall::buildEventsCallString( '',
+            array( array(
+                    'view',
+                    'default',
+                    array( 'sortby' => '5' )
                     ) ) );
 
     $projects = new InnoworkProject(
@@ -484,21 +505,23 @@ function main_default( $eventData )
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
 
-    switch ( $sort_by )
-    {
+    switch ($sort_by) {
     case '0':
-        $projects->mSearchOrderBy = 'customerid'.( $sort_order == 'up' ? ' DESC' : '' ).',name';
+        $projects->mSearchOrderBy = 'id'.( $sort_order == 'up' ? ' DESC' : '' );
         break;
     case '1':
         $projects->mSearchOrderBy = 'name'.( $sort_order == 'up' ? ' DESC' : '' );
         break;
     case '2':
-        $projects->mSearchOrderBy = 'priority'.( $sort_order == 'up' ? ' DESC' : '' );
+        $projects->mSearchOrderBy = 'customerid'.( $sort_order == 'up' ? ' DESC' : '' ).',name';
         break;
     case '3':
-        $projects->mSearchOrderBy = 'status'.( $sort_order == 'up' ? ' DESC' : '' );
+        $projects->mSearchOrderBy = 'priority'.( $sort_order == 'up' ? ' DESC' : '' );
         break;
     case '4':
+        $projects->mSearchOrderBy = 'status'.( $sort_order == 'up' ? ' DESC' : '' );
+        break;
+    case '5':
         $projects->mSearchOrderBy = 'type'.( $sort_order == 'up' ? ' DESC' : '' );
         break;
     }
@@ -576,7 +599,29 @@ function main_default( $eventData )
             ) ) ).'</action>
           </args>
         </button>
-
+        <button row="1" col="4"><name>filter</name>
+          <args>
+            <themeimage>buttoncancel</themeimage>
+            <horiz>true</horiz>
+            <frame>false</frame>
+            <formsubmit>filter</formsubmit>
+            <label>'.$gLocale->getStr( 'erase_filter.button' ).'</label>
+            <action>'.project_cdata( WuiEventsCall::buildEventsCallString( '', array(
+                array(
+                    'view',
+                    'default',
+                    array(
+                        )
+                    ),
+            		array(
+            				'action',
+            				'erasefilter',
+            				array(
+            				)
+            		)
+            ) ) ).'</action>
+          </args>
+        </button>
     <label row="0" col="0"><name>customer</name>
       <args>
         <label>'.$gLocale->getStr( 'filter_customer.label' ).'</label>
@@ -710,21 +755,12 @@ if ( $row >= $from and $row <= $to )
             if ( $fields['done'] == $done_check )
             {
                 $gXml_def .=
-'<link row="'.$row.'" col="0"><name>customer</name>
+'<label row="'.$row.'" col="0">
   <args>
-    <link>'.project_cdata( WuiEventsCall::buildEventsCallString(
-        $summaries['directorycompany']['domainpanel'],
-        array(
-            array(
-                $summaries['directorycompany']['showdispatcher'],
-                $summaries['directorycompany']['showevent'],
-                array( 'id' => $fields['customerid'] )
-                )
-            )
-        ) ).'</link>
-    <label>'.project_cdata( $cust_data['companyname'] ).'</label>
+    <label>'.project_cdata( $fields['id'] ).'</label>
   </args>
-</link>
+</label>
+
 <vertgroup row="'.$row.'" col="1">
   <args>
     <compact>true</compact>
@@ -753,23 +789,39 @@ if ( $row >= $from and $row <= $to )
   </children>
 </vertgroup>
 
-<label row="'.$row.'" col="2">
+    		<link row="'.$row.'" col="2"><name>customer</name>
+  <args>
+    <link>'.project_cdata( WuiEventsCall::buildEventsCallString(
+        $summaries['directorycompany']['domainpanel'],
+        array(
+            array(
+                $summaries['directorycompany']['showdispatcher'],
+                $summaries['directorycompany']['showevent'],
+                array( 'id' => $fields['customerid'] )
+                )
+            )
+        ) ).'</link>
+    <label>'.project_cdata( $cust_data['companyname'] ).'</label>
+  </args>
+</link>
+    		
+<label row="'.$row.'" col="3">
   <args>
     <label>'.project_cdata( $priorities[$fields['priority']] ).'</label>
   </args>
 </label>
-<label row="'.$row.'" col="3">
+<label row="'.$row.'" col="4">
   <args>
     <label>'.project_cdata( $statuses[$fields['status']] ).'</label>
   </args>
 </label>
-<label row="'.$row.'" col="4">
+<label row="'.$row.'" col="5">
   <args>
     <label>'.project_cdata( $types[$fields['type']] ).'</label>
   </args>
 </label>
 
-<innomatictoolbar row="'.$row.'" col="5"><name>tools</name>
+<innomatictoolbar row="'.$row.'" col="6"><name>tools</name>
   <args>
     <frame>false</frame>
     <toolbars type="array">'.WuiXml::encode( array(
