@@ -4,7 +4,7 @@
 	<definition>
 		<idname>innowork-projects</idname>
 		<release>
-			<version>2.0</version>
+			<version>1.2</version>
 			<date>2013/12/31</date>
 			<changesfile>CHANGES</changesfile>
 		</release>
@@ -15,17 +15,18 @@
 			<dependency>innowork-core[3.1]</dependency>
             <dependency>innowork-groupware</dependency>
 			<dependency>phplotlib[5.0-3]</dependency>
+			<suggestion>innowork-timesheet</suggestion>
 		</dependencies>
 		<options>
 			<!-- <option></option> -->
 		</options>
 		<legal>
 			<author>
-				<name>Innoteam S.r.l.</name>
+				<name>Innoteam Srl</name>
 				<email>info@innoteam.it</email>
 				<web>http://www.innoteam.it/</web>
 			</author>
-			<copyright>Copyright (c) 2002-2013 Innoteam S.r.l.</copyright>
+			<copyright>Copyright (c) 2002-2014 Innoteam Srl</copyright>
 			<license>Commercial</license>
 			<licensefile>LICENSE</licensefile>
 		</legal>
