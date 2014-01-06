@@ -1,0 +1,76 @@
+<?xml version='1.0'?>
+<application>
+
+	<definition>
+		<idname>innowork-projects</idname>
+		<release>
+			<version>1.2</version>
+			<date>2014/01/06</date>
+			<changesfile>CHANGES</changesfile>
+		</release>
+		<description>Innowork Projects</description>
+		<category>intranet</category>
+		<iconfile></iconfile>
+		<dependencies>
+			<dependency>innowork-core[3.1]</dependency>
+            <dependency>innowork-groupware</dependency>
+			<dependency>phplotlib[5.0-3]</dependency>
+			<suggestion>innowork-timesheet</suggestion>
+		</dependencies>
+		<options>
+			<!-- <option></option> -->
+		</options>
+		<legal>
+			<author>
+				<name>Innoteam Srl</name>
+				<email>info@innoteam.it</email>
+				<web>http://www.innoteam.it/</web>
+			</author>
+			<copyright>Copyright (c) 2002-2014 Innoteam Srl</copyright>
+			<license>Commercial</license>
+			<licensefile>LICENSE</licensefile>
+		</legal>
+		<support>
+			<supportemail>helpdesk@innoteam.it</supportemail>
+			<bugsemail>helpdesk@innoteam.it</bugsemail>
+			<maintainer>
+				<name>Alex Pagnoni</name>
+				<email>alex.pagnoni@innoteam.it</email>
+			</maintainer>
+		</support>
+	</definition>
+
+	<components>
+
+		<domaingroup name="projects"
+			catalog="innowork-projects::projects_misc" />
+		
+        <catalog name="innowork-projects" />
+
+		<!-- Projects -->
+
+		<domainpanel name="innoworkprojects" file="innoworkprojects.php"
+			category="projects" themeicon="plan" themeicontype="apps"
+			catalog="innowork-projects::projects_misc" />
+
+		<domainpanel name="innoworkprojectsprefs"
+			file="innoworkprojectsprefs.php" category="preferences"
+			themeicon="plan" themeicontype="apps"
+			catalog="innowork-projects::projects_misc" />
+
+		<domaintable name="innowork_projects"
+			file="innowork_projects.xml" />
+		<domaintable name="innowork_projects_fields_values"
+			file="innowork_projects_fields_values.xml" />
+
+		<class name="innowork/projects/InnoworkProject.php" />
+		<class name="innowork/projects/InnoworkProjectField.php" />
+
+		<innoworkitemtype name="project" file="project"
+			catalog="innowork-projects::projects_misc"
+			classfile="innowork/projects/InnoworkProject.php" classname="InnoworkProject"
+			icon="plan" icontype="apps" domainpanel="innoworkprojects"
+			miniicon="edit" summaryname="projects-name" showmode="list" />
+
+	</components>
+</application>
