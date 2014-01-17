@@ -72,22 +72,37 @@
 			icon="plan" icontype="apps" domainpanel="innoworkprojects"
 			miniicon="edit" summaryname="projects-name" showmode="list" />
 
-        <!-- Activities -->
+        <domainpanel name="innoworktasks"
+            category="projects" themeicon="kword" themeicontype="apps"
+            catalog="innowork-projects::tasks_misc" />
+        <domainpanel name="innoworktasksprefs"
+            category="preferences"
+            themeicon="plan" themeicontype="apps"
+            catalog="innowork-projects::tasks_misc" />
+            
+        <domaintable name="innowork_projects_tasks"
+            file="innowork_projects_tasks.xml" />
+        <domaintable name="innowork_projects_tasks_messages"
+            file="innowork_projects_tasks_messages.xml" />
+        <domaintable name="innowork_projects_tasks_fields_values"
+            file="innowork_projects_tasks_fields_values.xml" />
 
-        <domainpanel name="innoworkactivities" file="innoworkactivities.php"
-            themeicon="todo" themeicontype="apps"
-            catalog="innowork-projects::activity_misc" category="projects" />
+        <class name="innowork/projects/InnoworkTask.php" />
+        <class name="innowork/projects/InnoworkTaskField.php" />
 
-        <domaintable name="innowork_projects_activities"
-            file="innowork_projects_activities.xml" />
+        <innoworkitemtype name="task" file="task"
+            catalog="innowork-projects::bugs_misc"
+            classfile="innowork/projects/InnoworkTask.php" classname="InnoworkTask" icon="kword"
+            icontype="apps" domainpanel="innoworktasks"
+            miniicon="folder_txt" summaryname="task-name" showmode="list" />
 
-        <innoworkitemtype name="activity"
-            catalog="innowork-projects::activity_misc"
-            classfile="innowork/projects/InnoworkActivity.php" classname="InnoworkActivity" icon="todo"
-            icontype="apps" domainpanel="innoworkactivities"
-            miniicon="view_detailed" summaryname="activity-name" showmode="list" />
-
-        <class name="innowork/projects/InnoworkActivity.php" />
+        <dashboardwidget
+            name="innoworkmytasks"
+            panel="innoworktasks"
+            file="InnoworkMyTasksDashboardWidget.php"
+            catalog="innowork-projects::tasks_dashboard"
+            title="mytasks"
+            class="\\Shared\\Dashboard\\InnoworkMyTasksDashboardWidget" />
 
 	</components>
 </application>
