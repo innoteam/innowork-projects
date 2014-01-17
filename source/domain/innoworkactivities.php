@@ -675,7 +675,7 @@ function main_showactivity($eventData) {
             
                     <button>
                       <args>
-                        <themeimage>fileclose</themeimage>
+                        <themeimage>listdetailed</themeimage>
                         <horiz>true</horiz>
                         <frame>false</frame>
                         <action>'.WuiXml::cdata(WuiEventsCall::buildEventsCallString('', array(array('view', 'default', '')))).'</action>
