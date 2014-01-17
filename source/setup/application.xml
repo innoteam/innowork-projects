@@ -72,5 +72,39 @@
 			icon="plan" icontype="apps" domainpanel="innoworkprojects"
 			miniicon="edit" summaryname="projects-name" showmode="list" />
 
+        <!-- Tasks -->
+        
+        <domainpanel name="innoworktasks"
+            category="projects" themeicon="kword" themeicontype="apps"
+            catalog="innowork-projects::tasks_misc" />
+        <domainpanel name="innoworktasksprefs"
+            category="preferences"
+            themeicon="plan" themeicontype="apps"
+            catalog="innowork-projects::tasks_misc" />
+            
+        <domaintable name="innowork_projects_tasks"
+            file="innowork_projects_tasks.xml" />
+        <domaintable name="innowork_projects_tasks_messages"
+            file="innowork_projects_tasks_messages.xml" />
+        <domaintable name="innowork_projects_tasks_fields_values"
+            file="innowork_projects_tasks_fields_values.xml" />
+
+        <class name="innowork/projects/InnoworkTask.php" />
+        <class name="innowork/projects/InnoworkTaskField.php" />
+
+        <innoworkitemtype name="task" file="task"
+            catalog="innowork-projects::tasks_misc"
+            classfile="innowork/projects/InnoworkTask.php" classname="InnoworkTask" icon="kword"
+            icontype="apps" domainpanel="innoworktasks"
+            miniicon="folder_txt" summaryname="task-name" showmode="list" />
+
+        <dashboardwidget
+            name="innoworkmytasks"
+            panel="innoworktasks"
+            file="InnoworkMyTasksDashboardWidget.php"
+            catalog="innowork-projects::tasks_dashboard"
+            title="mytasks"
+            class="\\Shared\\Dashboard\\InnoworkMyTasksDashboardWidget" />
+
 	</components>
 </application>
