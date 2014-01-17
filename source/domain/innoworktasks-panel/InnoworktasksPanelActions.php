@@ -20,7 +20,7 @@ class InnoworktasksPanelActions extends \Innomatic\Desktop\Panel\PanelActions
     public function beginHelper()
     {
         $this->localeCatalog = new LocaleCatalog(
-            'innowork-tasks::tasks_domain_main',
+            'innowork-projects::tasks_domain_main',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
         );
     }
@@ -133,7 +133,6 @@ class InnoworktasksPanelActions extends \Innomatic\Desktop\Panel\PanelActions
     	$filter_sk = new WuiSessionKey('project_filter', array('value' => ''));
     	$filter_sk = new WuiSessionKey('priority_filter', array('value' => ''));
     	$filter_sk = new WuiSessionKey('status_filter', array('value' => ''));
-    	$filter_sk = new WuiSessionKey('source_filter', array('value' => ''));
     	$filter_sk = new WuiSessionKey('resolution_filter', array('value' => ''));
     	$filter_sk = new WuiSessionKey('type_filter', array('value' => ''));
     	$filter_sk = new WuiSessionKey('year_filter', array('value' => ''));

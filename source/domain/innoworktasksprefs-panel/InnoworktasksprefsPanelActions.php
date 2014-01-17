@@ -20,7 +20,7 @@ class InnoworktasksprefsPanelActions extends \Innomatic\Desktop\Panel\PanelActio
     public function beginHelper()
     {
         $this->localeCatalog = new LocaleCatalog(
-            'innowork-tasks::tasks_domain_prefs',
+            'innowork-projects::tasks_domain_prefs',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
        );
     }

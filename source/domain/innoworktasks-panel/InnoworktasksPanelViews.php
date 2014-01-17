@@ -29,7 +29,7 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
     public function beginHelper()
     {
         $this->localeCatalog = new LocaleCatalog(
-            'innowork-tasks::tasks_domain_main',
+            'innowork-projects::tasks_domain_main',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
         );
 
@@ -132,13 +132,10 @@ $this->toolbars['mail'] = array(
         $priorities = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_PRIORITY);
         $priorities['0'] = $this->localeCatalog->getStr('allpriorities.label');
     
-        $sources = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SOURCE);
-        $sources['0'] = $this->localeCatalog->getStr('allsources.label');
-    
         $resolutions = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_RESOLUTION);
         $resolutions['0'] = $this->localeCatalog->getStr('allresolutions.label');
     
-        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SEVERITY);
+        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
         $types['0'] = $this->localeCatalog->getStr('alltypes.label');
     
         // Filtering
@@ -188,22 +185,11 @@ $this->toolbars['mail'] = array(
     
             if ($eventData['filter_statusid'] != 0) $search_keys['statusid'] = $eventData['filter_statusid'];
     
-            // Source
-    
-            $source_filter_sk = new WuiSessionKey(
-                    'source_filter',
-                    array(
-                            'value' => $eventData['filter_sourceid']
-                    )
-            );
-    
-            if ($eventData['filter_sourceid'] != 0) $search_keys['sourceid'] = $eventData['filter_sourceid'];
-    
             // Type
-            $type_filter_sk = new WuiSessionKey('type_filter', array('value' => $eventData['filter_severityid']));
+            $type_filter_sk = new WuiSessionKey('type_filter', array('value' => $eventData['filter_typeid']));
     
-            if ($eventData['filter_severityid'] != 0) {
-                $search_keys['severityid'] = $eventData['filter_severityid'];
+            if ($eventData['filter_typeid'] != 0) {
+                $search_keys['typeid'] = $eventData['filter_typeid'];
             }
     
             // Resolution
@@ -298,23 +284,14 @@ $this->toolbars['mail'] = array(
             ) $search_keys['statusid'] = $status_filter_sk->mValue;
             $eventData['filter_statusid'] = $status_filter_sk->mValue;
     
-            // Source
-    
-            $source_filter_sk = new WuiSessionKey('source_filter');
-            if (
-            strlen($source_filter_sk->mValue)
-            and $source_filter_sk->mValue != 0
-            ) $search_keys['sourceid'] = $source_filter_sk->mValue;
-            $eventData['filter_sourceid'] = $source_filter_sk->mValue;
-    
             // Type
     
             $type_filter_sk = new WuiSessionKey('type_filter');
             if (strlen($type_filter_sk->mValue) and $type_filter_sk->mValue != 0) {
-                $search_keys['severityid'] = $type_filter_sk->mValue;
+                $search_keys['typeid'] = $type_filter_sk->mValue;
             }
     
-            $eventData['filter_severityid'] = $type_filter_sk->mValue;
+            $eventData['filter_typeid'] = $type_filter_sk->mValue;
     
             // Resolution
     
@@ -448,9 +425,6 @@ $this->toolbars['mail'] = array(
             case '7':
                 $tasks->mSearchOrderBy = 'statusid'.($sort_order == 'up' ? ' DESC' : '');
                 break;
-            case '8':
-                $tasks->mSearchOrderBy = 'sourceid'.($sort_order == 'up' ? ' DESC' : '');
-                break;
         }
     
         if (
@@ -525,13 +499,6 @@ $this->toolbars['mail'] = array(
                         'view',
                         'default',
                         array('sortby' => '8')
-                )));
-        $headers[8]['label'] = $this->localeCatalog->getStr('source.header');
-        $headers[8]['link'] = \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('',
-                array(array(
-                        'view',
-                        'default',
-                        array('sortby' => '9')
                 )));
     
         $this->xml =
@@ -690,11 +657,11 @@ $this->toolbars['mail'] = array(
         <label>'.$this->localeCatalog->getStr('filter_type.label').'</label>
       </args>
     </label>
-    <combobox row="0" col="3"><name>filter_severityid</name>
+    <combobox row="0" col="3"><name>filter_typeid</name>
       <args>
         <disp>view</disp>
         <elements type="array">'.WuiXml::encode($types).'</elements>
-        <default>'.(isset($eventData['filter_severityid']) ? $eventData['filter_severityid'] : '').'</default>
+        <default>'.(isset($eventData['filter_typeid']) ? $eventData['filter_typeid'] : '').'</default>
       </args>
     </combobox>
     
@@ -726,23 +693,10 @@ $this->toolbars['mail'] = array(
     
     <label row="3" col="2">
       <args>
-        <label>'.$this->localeCatalog->getStr('filter_source.label').'</label>
-      </args>
-    </label>
-    <combobox row="3" col="3"><name>filter_sourceid</name>
-      <args>
-        <disp>view</disp>
-        <elements type="array">'.WuiXml::encode($sources).'</elements>
-        <default>'.(isset($eventData['filter_sourceid']) ? $eventData['filter_sourceid'] : '').'</default>
-      </args>
-    </combobox>
-    
-    <label row="4" col="2">
-      <args>
         <label>'.$this->localeCatalog->getStr('filter_resolution.label').'</label>
       </args>
     </label>
-    <combobox row="4" col="3"><name>filter_resolutionid</name>
+    <combobox row="3" col="3"><name>filter_resolutionid</name>
       <args>
         <disp>view</disp>
         <elements type="array">'.WuiXml::encode($resolutions).'</elements>
@@ -788,13 +742,10 @@ $this->toolbars['mail'] = array(
         $priorities = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_PRIORITY);
         $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
     
-        $sources = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SOURCE);
-        $sources['0'] = $this->localeCatalog->getStr('nosource.label');
-    
         $resolutions = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_RESOLUTION);
         $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
     
-        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SEVERITY);
+        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
         $types['0'] = $this->localeCatalog->getStr('notype.label');
     
         $page = 1;
@@ -946,7 +897,7 @@ $this->toolbars['mail'] = array(
 </label>
 <label row="'.$row.'" col="5">
   <args>
-    <label>'.WuiXml::cdata($types[$task['severityid']]).'</label>
+    <label>'.WuiXml::cdata($types[$task['typeid']]).'</label>
     <nowrap>false</nowrap>
   </args>
 </label>
@@ -962,13 +913,7 @@ $this->toolbars['mail'] = array(
     <nowrap>false</nowrap>
   </args>
 </label>
-<label row="'.$row.'" col="8">
-  <args>
-    <label>'.WuiXml::cdata($sources[$task['sourceid']]).'</label>
-    <nowrap>false</nowrap>
-  </args>
-</label>
-<innomatictoolbar row="'.$row.'" col="9"><name>tools</name>
+<innomatictoolbar row="'.$row.'" col="8"><name>tools</name>
   <args>
     <frame>false</frame>
     <toolbars type="array">'.WuiXml::encode(array(
@@ -1226,13 +1171,10 @@ $this->toolbars['mail'] = array(
         $priorities = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_PRIORITY);
         $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
     
-        $sources = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SOURCE);
-        $sources['0'] = $this->localeCatalog->getStr('nosource.label');
-    
         $resolutions = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_RESOLUTION);
         $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
     
-        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SEVERITY);
+        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
         $types['0'] = $this->localeCatalog->getStr('notype.label');
     
         if ($task_data['done'] == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
@@ -1366,11 +1308,11 @@ $this->toolbars['mail'] = array(
                       </args>
                     </label>
     
-                    <combobox row="0" col="1"><name>severityid</name>
+                    <combobox row="0" col="1"><name>typeid</name>
                       <args>
                         <disp>action</disp>
                         <elements type="array">'.WuiXml::encode($types).'</elements>
-                        <default>'.$task_data['severityid'].'</default>
+                        <default>'.$task_data['typeid'].'</default>
                       </args>
                     </combobox>
     
@@ -1404,25 +1346,11 @@ $this->toolbars['mail'] = array(
     
                     <label row="1" col="0" halign="right">
                       <args>
-                        <label>'.$this->localeCatalog->getStr('source.label').'</label>
-                      </args>
-                    </label>
-    
-                    <combobox row="1" col="1"><name>sourceid</name>
-                      <args>
-                        <disp>action</disp>
-                        <elements type="array">'.WuiXml::encode($sources).'</elements>
-                        <default>'.$task_data['sourceid'].'</default>
-                      </args>
-                    </combobox>
-    
-                    <label row="1" col="2" halign="right">
-                      <args>
                         <label>'.$this->localeCatalog->getStr('resolution.label').'</label>
                       </args>
                     </label>
     
-                    <combobox row="1" col="3"><name>resolutionid</name>
+                    <combobox row="1" col="1"><name>resolutionid</name>
                       <args>
                         <disp>action</disp>
                         <elements type="array">'.WuiXml::encode($resolutions).'</elements>
@@ -1467,37 +1395,6 @@ $this->toolbars['mail'] = array(
                     <rows>6</rows>
                     <cols>100</cols>
                     <value>'.WuiXml::cdata($task_data['description']).'</value>
-                  </args>
-                </text>
-
-                <label>
-                  <args>
-                    <label>'.$this->localeCatalog->getStr('steps.label').'</label>
-                  </args>
-                </label>
-    
-                <text><name>steps</name>
-                  <args>
-                    <disp>action</disp>
-                    <rows>6</rows>
-                    <cols>100</cols>
-                    <value>'.WuiXml::cdata($task_data['steps']).'</value>
-                  </args>
-                </text>
-    
-                    		
-                <label>
-                  <args>
-                    <label>'.$this->localeCatalog->getStr('solution.label').'</label>
-                  </args>
-                </label>
-    
-                <text><name>solution</name>
-                  <args>
-                    <disp>action</disp>
-                    <rows>6</rows>
-                    <cols>100</cols>
-                    <value>'.WuiXml::cdata($task_data['solution']).'</value>
                   </args>
                 </text>
     

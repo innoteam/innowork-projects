@@ -91,7 +91,7 @@
         <class name="innowork/projects/InnoworkTaskField.php" />
 
         <innoworkitemtype name="task" file="task"
-            catalog="innowork-projects::bugs_misc"
+            catalog="innowork-projects::tasks_misc"
             classfile="innowork/projects/InnoworkTask.php" classname="InnoworkTask" icon="kword"
             icontype="apps" domainpanel="innoworktasks"
             miniicon="folder_txt" summaryname="task-name" showmode="list" />

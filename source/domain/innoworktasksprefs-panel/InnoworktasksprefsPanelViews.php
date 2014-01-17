@@ -29,7 +29,7 @@ class InnoworktasksprefsPanelViews extends \Innomatic\Desktop\Panel\PanelViews
     public function beginHelper()
     {
         $this->localeCatalog = new LocaleCatalog(
-            'innowork-tasks::tasks_domain_prefs',
+            'innowork-projects::tasks_domain_prefs',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
        );
 
@@ -90,8 +90,7 @@ $this->toolbars['prefs'] = array(
         $tabs[0]['label'] = $this->localeCatalog->getStr('status.tab');
         $tabs[1]['label'] = $this->localeCatalog->getStr('priority.tab');
         $tabs[2]['label'] = $this->localeCatalog->getStr('type.tab');
-        $tabs[3]['label'] = $this->localeCatalog->getStr('source.tab');
-        $tabs[4]['label'] = $this->localeCatalog->getStr('resolution.tab');
+        $tabs[3]['label'] = $this->localeCatalog->getStr('resolution.tab');
     
         $headers[0]['label'] = $this->localeCatalog->getStr('fieldvalue.header');
     
@@ -248,7 +247,7 @@ $this->toolbars['prefs'] = array(
           <children>';
     
         $row = 0;
-        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SEVERITY);
+        $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
         while (list($id, $field) = each($types))
         {
             $this->xml .=
@@ -290,69 +289,7 @@ $this->toolbars['prefs'] = array(
                                                 'removefield',
                                                 array(
                                                         'id' => $id,
-                                                        'fieldtype' => InnoworkTaskField::TYPE_SEVERITY
-                                               ))))
-           )))).'</toolbars>
-  </args>
-</innomatictoolbar>';
-    
-            $row++;
-        }
-    
-        $this->xml .=
-        '          </children>
-        </table>';
-    
-        $this->xml .=
-        '        <table><name>sources</name>
-          <args>
-            <headers type="array">'.WuiXml::encode($headers).'</headers>
-          </args>
-          <children>';
-    
-        $row = 0;
-        $sources = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_SOURCE);
-        while (list($id, $field) = each($sources)) {
-            $this->xml .=
-            '<label row="'.$row.'" col="0"><name>source</name>
-  <args>
-    <label type="encoded">'.urlencode($field).'</label>
-  </args>
-</label>
-<innomatictoolbar row="'.$row.'" col="1"><name>tools</name>
-  <args>
-    <frame>false</frame>
-    <toolbars type="array">'.WuiXml::encode(array(
-                'view' => array(
-                        'show' => array(
-                                'label' => $this->localeCatalog->getStr('editfield.button'),
-                                'themeimage' => 'pencil',
-                                'themeimagetype' => 'mini',
-                                'horiz' => 'true',
-                                'action' => \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('', array(array(
-                                        'view',
-                                        'editfield',
-                                        array('id' => $id))))
-                       ),
-                        'remove' => array(
-                                'label' => $this->localeCatalog->getStr('removefield.button'),
-                                'themeimage' => 'trash',
-                                'themeimagetype' => 'mini',
-                                'horiz' => 'true',
-                                'needconfirm' => 'true',
-                                'confirmmessage' => $this->localeCatalog->getStr('removefield.confirm'),
-                                'action' => \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('', array(
-                                        array(
-                                                'view',
-                                                'default',
-                                                ''
-                                       ),
-                                        array(
-                                                'action',
-                                                'removefield',
-                                                array(
-                                                        'id' => $id,
-                                                        'fieldtype' => InnoworkTaskField::TYPE_SOURCE
+                                                        'fieldtype' => InnoworkTaskField::TYPE_TYPE
                                                ))))
            )))).'</toolbars>
   </args>
@@ -439,8 +376,7 @@ $this->toolbars['prefs'] = array(
     {
         $field_types[InnoworkTaskField::TYPE_STATUS] = $this->localeCatalog->getStr('field_status.label');
         $field_types[InnoworkTaskField::TYPE_PRIORITY] = $this->localeCatalog->getStr('field_priority.label');
-        $field_types[InnoworkTaskField::TYPE_SEVERITY] = $this->localeCatalog->getStr('field_type.label');
-        $field_types[InnoworkTaskField::TYPE_SOURCE] = $this->localeCatalog->getStr('field_source.label');
+        $field_types[InnoworkTaskField::TYPE_TYPE] = $this->localeCatalog->getStr('field_type.label');
         $field_types[InnoworkTaskField::TYPE_RESOLUTION] = $this->localeCatalog->getStr('field_resolution.label');
     
         $this->xml .=
@@ -539,8 +475,7 @@ $this->toolbars['prefs'] = array(
     {
         $field_types[InnoworkTaskField::TYPE_STATUS] = $this->localeCatalog->getStr('field_status.label');
         $field_types[InnoworkTaskField::TYPE_PRIORITY] = $this->localeCatalog->getStr('field_priority.label');
-        $field_types[InnoworkTaskField::TYPE_SEVERITY] = $this->localeCatalog->getStr('field_type.label');
-        $field_types[InnoworkTaskField::TYPE_SOURCE] = $this->localeCatalog->getStr('field_source.label');
+        $field_types[InnoworkTaskField::TYPE_TYPE] = $this->localeCatalog->getStr('field_type.label');
         $field_types[InnoworkTaskField::TYPE_RESOLUTION] = $this->localeCatalog->getStr('field_resolution.label');
     
         $field = new InnoworkTaskField(

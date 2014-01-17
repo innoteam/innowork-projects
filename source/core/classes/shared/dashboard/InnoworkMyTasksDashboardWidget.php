@@ -11,7 +11,7 @@ class InnoworkMyTasksDashboardWidget extends \Innomatic\Desktop\Dashboard\Dashbo
     public function getWidgetXml()
     {
         $locale_catalog = new \Innomatic\Locale\LocaleCatalog(
-            'innowork-tasks::tasks_dashboard',
+            'innowork-projects::tasks_dashboard',
             InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
         );
     	

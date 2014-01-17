@@ -22,15 +22,11 @@ class InnoworkTask extends InnoworkItem
 
         $this->mKeys['title'] = 'text';
         $this->mKeys['description'] = 'text';
-        $this->mKeys['steps'] = 'text';
-        $this->mKeys['solution'] = 'text';
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
         $this->mKeys['customerid'] = 'table:innowork_directory_companies:companyname:integer';
         $this->mKeys['statusid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['priorityid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
-        $this->mKeys['sourceid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['resolutionid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
-        $this->mKeys['severityid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['creationdate'] = 'timestamp';
         $this->mKeys['done'] = 'boolean';
         $this->mKeys['openedby'] = 'integer';
@@ -39,10 +35,9 @@ class InnoworkTask extends InnoworkItem
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
         $this->mSearchResultKeys[] = 'customerid';
-        $this->mSearchResultKeys[] = 'severityid';
+        $this->mSearchResultKeys[] = 'typeid';
         $this->mSearchResultKeys[] = 'statusid';
         $this->mSearchResultKeys[] = 'priorityid';
-        $this->mSearchResultKeys[] = 'sourceid';
         $this->mSearchResultKeys[] = 'resolutionid';
         $this->mSearchResultKeys[] = 'creationdate';
         $this->mSearchResultKeys[] = 'done';
@@ -53,10 +48,9 @@ class InnoworkTask extends InnoworkItem
         $this->mViewableSearchResultKeys[] = 'title';
         $this->mViewableSearchResultKeys[] = 'projectid';
         $this->mViewableSearchResultKeys[] = 'customerid';
-        $this->mViewableSearchResultKeys[] = 'severityid';
+        $this->mViewableSearchResultKeys[] = 'typeid';
         $this->mViewableSearchResultKeys[] = 'statusid';
         $this->mViewableSearchResultKeys[] = 'priorityid';
-        $this->mViewableSearchResultKeys[] = 'sourceid';
         $this->mViewableSearchResultKeys[] = 'resolutionid';
         $this->mViewableSearchResultKeys[] = 'creationdate';
         $this->mViewableSearchResultKeys[] = 'openedby';
@@ -104,17 +98,12 @@ class InnoworkTask extends InnoworkItem
                 ) $params['priorityid'] = '0';
 
             if (
-                !isset($params['sourceid'] )
-                or !strlen( $params['sourceid'] )
-                ) $params['sourceid'] = '0';
-
-            if (
                 !isset($params['resolutionid'] )
                 or !strlen( $params['resolutionid'] )
                 ) $params['resolutionid'] = '0';
 
-            if (!isset($params['severityid']) or !strlen($params['severityid'])) {
-            	$params['severityid'] = '0';
+            if (!isset($params['typeid']) or !strlen($params['typeid'])) {
+            	$params['typeid'] = '0';
             }
             
             if (!isset($params['openedby']) or !strlen($params['openedby'])) {
@@ -147,8 +136,6 @@ class InnoworkTask extends InnoworkItem
                 switch ( $key ) {
                 case 'title':
                 case 'description':
-                case 'steps':
-                case 'solution':
                 case 'done':
                 case 'trashed':
                     $keys .= $key_pre.$key;
@@ -167,9 +154,8 @@ class InnoworkTask extends InnoworkItem
                 case 'customerid':
                 case 'statusid':
                 case 'priorityid':
-                case 'sourceid':
+                case 'typeid':
                 case 'resolutionid':
-                case 'severityid':
                 case 'openedby':
                 case 'assignedto':
                     if ( !strlen( $key ) ) $key = 0;
@@ -220,8 +206,6 @@ class InnoworkTask extends InnoworkItem
                         switch ( $field ) {
                         case 'title':
                         case 'description':
-                        case 'steps':
-                        case 'solution':
                         case 'done':
                         case 'trashed':
                             if ( !$start ) $update_str .= ',';
@@ -242,9 +226,8 @@ class InnoworkTask extends InnoworkItem
                         case 'customerid':
                         case 'statusid':
                         case 'priorityid':
-                        case 'sourceid':
+                        case 'typeid':
                         case 'resolutionid':
-                        case 'severityid':
                 		case 'openedby':
                 		case 'assignedto':
                         	if ( !strlen( $value ) ) $value = 0;
@@ -420,7 +403,7 @@ class InnoworkTask extends InnoworkItem
 
         if ( count( $tasks_search ) ) {
             $locale = new LocaleCatalog(
-                'innowork-tasks::tasks_domain_main',
+                'innowork-projects::tasks_domain_main',
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
                 );
 

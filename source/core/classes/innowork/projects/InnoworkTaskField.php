@@ -3,8 +3,7 @@
 class InnoworkTaskField {
 	const TYPE_STATUS = 1;
 	const TYPE_PRIORITY = 2;
-	const TYPE_SEVERITY = 3;
-	const TYPE_SOURCE = 4;
+	const TYPE_TYPE = 3;
 	const TYPE_RESOLUTION = 5;
 	var $mLog;
 	var $mrDomainDA;
@@ -110,13 +109,9 @@ class InnoworkTaskField {
 						$update_projects = true;
 						break;
 
-					case InnoworkTaskField::TYPE_SEVERITY:
+					case InnoworkTaskField::TYPE_TYPE:
 						$fields = 'type';
 						$update_projects = true;
-						break;
-
-					case InnoworkTaskField::TYPE_SOURCE:
-					case INNOWORKPROJECTS_FIELDYTPE_CHANNEL:
 						break;
 				}
 

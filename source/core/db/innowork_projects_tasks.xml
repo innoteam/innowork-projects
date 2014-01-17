@@ -8,8 +8,7 @@
         <field  name="projectid"  type="integer"/>
         <field  name="title"    type="text"/>
         <field  name="description"  type="text"/>
-        <field  name="steps"  type="text"/>
-        <field  name="solution" type="text"/>
+        <field  name="typeid" type="integer"/>
         <field  name="statusid" type="integer"/>
         <field  name="priorityid"   type="integer"/>
         <field  name="resolutionid" type="integer"/>
@@ -18,8 +17,6 @@
         <field  name="trashed"  type="boolean"/>
         <field  name="openedby"  type="integer"/>
         <field  name="assignedto"  type="integer"/>
-        <field  name="severityid" type="integer"/>
-        <field  name="sourceid"   type="integer"/>
         <key    field="id"  type="unique"/>
     </table>
 
