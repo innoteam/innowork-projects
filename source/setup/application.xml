@@ -72,5 +72,22 @@
 			icon="plan" icontype="apps" domainpanel="innoworkprojects"
 			miniicon="edit" summaryname="projects-name" showmode="list" />
 
+        <!-- Activities -->
+
+        <domainpanel name="innoworkactivities" file="innoworkactivities.php"
+            themeicon="todo" themeicontype="apps"
+            catalog="innowork-projects::activity_misc" category="projects" />
+
+        <domaintable name="innowork_projects_activities"
+            file="innowork_projects_activities.xml" />
+
+        <innoworkitemtype name="activity"
+            catalog="innowork-projects::activity_misc"
+            classfile="innowork/projects/InnoworkActivity.php" classname="InnoworkActivity" icon="todo"
+            icontype="apps" domainpanel="innoworkactivities"
+            miniicon="view_detailed" summaryname="activity-name" showmode="list" />
+
+        <class name="innowork/projects/InnoworkActivity.php" />
+
 	</components>
 </application>
