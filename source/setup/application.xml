@@ -72,6 +72,8 @@
 			icon="plan" icontype="apps" domainpanel="innoworkprojects"
 			miniicon="edit" summaryname="projects-name" showmode="list" />
 
+        <!-- Tasks -->
+        
         <domainpanel name="innoworktasks"
             category="projects" themeicon="kword" themeicontype="apps"
             catalog="innowork-projects::tasks_misc" />
