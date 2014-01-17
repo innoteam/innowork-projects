@@ -532,14 +532,14 @@ function main_default( $eventData )
             )
         {
             $done_check = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue;
-            $done_icon = 'undo';
+            $done_icon = 'misc3';
             $done_action = 'false';
             $done_label = 'setundone.button';
         }
         else
         {
             $done_check = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmtfalse;
-            $done_icon = 'redo';
+            $done_icon = 'drawer';
             $done_action = 'true';
             $done_label = 'setdone.button';
         }
@@ -1336,13 +1336,13 @@ function main_showproject( $eventData )
 
         if ( $pj_data['done'] == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue )
         {
-            $done_icon = 'undo';
+            $done_icon = 'misc3';
             $done_action = 'false';
             $done_label = 'setundone.button';
         }
         else
         {
-            $done_icon = 'redo';
+            $done_icon = 'drawer';
             $done_action = 'true';
             $done_label = 'setdone.button';
         }
