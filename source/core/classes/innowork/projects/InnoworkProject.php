@@ -9,7 +9,7 @@ class InnoworkProject extends InnoworkItem {
     var $mTable = 'innowork_projects';
     var $mNewDispatcher = 'view';
     var $mNewEvent = 'newproject';
-    var $mTypeTags = 'project';
+    var $mTypeTags = array('project');
     const ITEM_TYPE = 'project';
 
     function InnoworkProject(
