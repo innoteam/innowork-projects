@@ -180,7 +180,10 @@ function action_newtsrow(
 	$eventData
 ) {
 
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
@@ -208,7 +211,10 @@ $gAction_disp->addEvent(
 function action_changetsrow(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
@@ -234,7 +240,10 @@ $gAction_disp->addEvent(
 function action_removetsrow(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->deleteTimesheetRow($eventData['rowid']);
 }
 
@@ -247,7 +256,10 @@ function action_consolidate(
 ) {
 	global $gPage_status, $gLocale;
 
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->consolidateTimesheetRow($eventData['rowid']);
 }
 
@@ -258,7 +270,10 @@ $gAction_disp->addEvent(
 function action_unconsolidate(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->unconsolidateTimesheetRow( $eventData['rowid'] );
 }
 
@@ -1971,7 +1986,10 @@ function main_timesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
@@ -2374,7 +2392,10 @@ function main_timesheetrow(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 
@@ -2611,7 +2632,10 @@ function main_printtimesheet(
 
 	$cust_data = $innowork_customer->getItem();
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
@@ -2691,7 +2715,10 @@ function main_exporttimesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
