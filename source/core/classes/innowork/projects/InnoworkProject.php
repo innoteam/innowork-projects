@@ -9,6 +9,7 @@ class InnoworkProject extends InnoworkItem {
     var $mTable = 'innowork_projects';
     var $mNewDispatcher = 'view';
     var $mNewEvent = 'newproject';
+    var $mTypeTags = 'project';
     const ITEM_TYPE = 'project';
 
     function InnoworkProject(
@@ -23,7 +24,6 @@ class InnoworkProject extends InnoworkItem {
             InnoworkProject::ITEM_TYPE,
             $projectId
             );
-
 
         $this->mKeys['name'] = 'text';
         $this->mKeys['description'] = 'text';
@@ -85,8 +85,11 @@ class InnoworkProject extends InnoworkItem {
     {
         $result = false;
 
-            if ( $params['done'] == 'true' ) $params['done'] = $this->mrDomainDA->fmttrue;
-            else $params['done'] = $this->mrDomainDA->fmtfalse;
+            if ($params['done'] == 'true') {
+            	$params['done'] = $this->mrDomainDA->fmttrue;
+            } else {
+            	$params['done'] = $this->mrDomainDA->fmtfalse;
+            }
 
             if (
                 !isset($params['customerid'] )

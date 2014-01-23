@@ -10,7 +10,7 @@ class InnoworkTask extends InnoworkItem
     public $mNoTrash = false;
     public $mConvertible = true;
     public $mNoAcl = true;
-    public $mTags = array('task');
+    public $mTypeTags = array('task');
     const ITEM_TYPE = 'task';
 
     //var $mNoAcl = true;
