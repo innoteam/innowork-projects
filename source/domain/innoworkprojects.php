@@ -145,11 +145,30 @@ function action_editproject( $eventData )
         $eventData['id']
         );
 
-    if ( $innowork_project->Edit(
+    if ( $innowork_project->edit(
         $eventData,
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->getStr( 'project_updated.status' );
     else $gPage_status = $gLocale->getStr( 'project_not_updated.status' );
+    
+    $app_deps = new \Innomatic\Application\ApplicationDependencies(
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
+    );
+
+    // Timesheet customer reporting installed?
+    if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+        $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
+        $users = array();
+        
+        while (!$users_query->eof) {
+            $fee_id = 'fee_'.$users_query->getFields('id');
+            if (isset($eventData[$fee_id])) {
+                \Innowork\Timesheet\TimesheetCustomerReportingUtils::setProjectFee($eventData['id'], $users_query->getFields( 'id' ), $eventData[$fee_id]);
+            }
+        
+            $users_query->moveNext();
+        }
+    }
 }
 
 $gAction_disp->addEvent(
@@ -1368,11 +1387,21 @@ function main_showproject( $eventData )
         $app_deps = new \Innomatic\Application\ApplicationDependencies(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
         );
+        
+        // Timesheet installed?
         if ($app_deps->isInstalled('innowork-timesheet')) {
         	$ts_installed = true;
         	$tabs[$tab_counter++]['label'] = $gLocale->getStr('timesheet.tab');
         } else {
         	$ts_installed = false;
+        }
+        
+        // Timesheet customer reporting installed?
+        if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+            $cr_installed = true;
+            $tabs[$tab_counter++]['label'] = $gLocale->getStr('customer_reporting.tab');
+        } else {
+            $cr_installed = false;
         }
         
         $tabs[$tab_counter++]['label'] = $gLocale->getStr('otherprojects.tab');
@@ -1754,6 +1783,56 @@ function main_showproject( $eventData )
     
                       </children>
                     </vertgroup>';
+		}
+		
+		if ($cr_installed) {
+		    $default_fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getDefaultFees();
+		    $fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFees($eventData['id']);
+		    
+		    $fees_headers[0]['label'] = $gLocale->getStr('fee_user.header');
+		    $fees_headers[1]['label'] = $gLocale->getStr('fee_defaultfee.header');;
+		    $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
+		    
+		    $gXml_def .= '<vertgroup><children>
+                    	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
+                    		
+                    	<table>
+      <args>
+        <headers type="array">'.WuiXml::encode( $fees_headers ).'</headers>
+      </args>
+        		<children>';
+
+            $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
+            $users = array();
+            
+            $fees_row = 0;
+
+            /*
+            if ($pj_data['english'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
+            	$fee_where = 'for';
+            } else {
+            	$fee_where = 'ita';	
+            }
+            */
+            $fee_where = 'local';
+            
+            while ( !$users_query->eof )
+            {
+            	$user_id = $users_query->getFields( 'id' );
+            
+            	$gXml_def .= '<label row="'.$fees_row.'" col="0"><name>fee</name><args><label>'.$users_query->getFields( 'lname' ).
+            	' '.$users_query->getFields( 'fname' ).'</label></args></label>
+            			<label row="'.$fees_row.'" col="1"><name>fee</name><args><label>'.$default_fees[$user_id][$fee_where].'</label></args></label>
+            			<string row="'.$fees_row.'" col="2"><name>fee_'.$user_id.'</name><args><disp>action</disp><size>7</size><value>'.$fees[$user_id].'</value></args></string>';
+            	
+            	$users_query->moveNext();
+            	$fees_row++;
+            }
+                        
+            $gXml_def .= '
+        		</children>
+                    		</table>
+		        </children></vertgroup>';
 		}
 
             $gXml_def .= '

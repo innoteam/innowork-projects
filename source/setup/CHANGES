@@ -2,6 +2,8 @@
 ------------------
 NEW FEATURES:
 - Added "task" tag. (Alex Pagnoni)
+- Added support for innowork-timesheet-customer-reporting with project fees.
+  (Alex Pagnoni)
 
 CHANGES:
 - Changed innowork-core depency to version 3.3. (Alex Pagnoni)
