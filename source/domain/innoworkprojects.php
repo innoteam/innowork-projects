@@ -144,7 +144,7 @@ function action_editproject( $eventData )
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
-
+    
     if ( $innowork_project->edit(
         $eventData,
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
@@ -1794,6 +1794,34 @@ function main_showproject( $eventData )
 		    $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
 		    
 		    $gXml_def .= '<vertgroup><children>
+		        
+        <horizgroup><args><width>0%</width></args>
+          <children>
+              <label><name>sendtscustomerreport</name>
+                <args><label>'.$gLocale->getStr('send_timesheet_customer_report.label').'</label></args>
+              </label>
+                		
+                <radio><name>sendtscustomerreport</name>
+                  <args>
+                    <disp>action</disp>
+                    <value>true</value>
+                    <label>'.( $gLocale->getStr( 'sendtscsrep_yes.label' ) ).'</label>
+                    <checked>'.( $pj_data['sendtscustomerreport'] != InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse ? 'true' : 'false' ).'</checked>
+                  </args>
+                </radio>
+
+                <radio><name>sendtscustomerreport</name>
+                  <args>
+                    <disp>action</disp>
+                    <value>false</value>
+                    <label>'.( $gLocale->getStr( 'sendtscsrep_not.label' ) ).'</label>
+                    <checked>'.( $pj_data['sendtscustomerreport'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse ? 'true' : 'false' ).'</checked>
+                  </args>
+                </radio>
+                    		
+          </children>
+        </horizgroup>
+                        
                     	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
                     		
                     	<table>
@@ -1908,16 +1936,8 @@ function main_showproject( $eventData )
     		<compact>true</compact>
     </args>
 </label>
-                    		
-<label row="'.$row.'" col="3">
-  <args>
-    <label>'.project_cdata( $fields['counterpart'] ).'</label>
-    		<compact>true</compact>
-    		<nowrap>false</nowrap>
-    </args>
-</label>
 
-<link row="'.$row.'" col="4">
+<link row="'.$row.'" col="3">
   <args>
     <label>'.project_cdata( $fields['name'] ).'</label>
     <bold>true</bold>

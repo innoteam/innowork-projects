@@ -33,6 +33,7 @@ class InnoworkProject extends InnoworkItem {
         $this->mKeys['estimatedrevenue'] = 'text';
         $this->mKeys['responsible'] = 'integer';
         $this->mKeys['done'] = 'boolean';
+        $this->mKeys['sendtscustomerreport'] = 'boolean';
         $this->mKeys['status'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
         $this->mKeys['priority'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
         $this->mKeys['type'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
@@ -84,13 +85,19 @@ class InnoworkProject extends InnoworkItem {
         )
     {
         $result = false;
-
+        
             if ($params['done'] == 'true') {
             	$params['done'] = $this->mrDomainDA->fmttrue;
             } else {
             	$params['done'] = $this->mrDomainDA->fmtfalse;
             }
-
+            
+            if ($params['sendtscustomerreport'] == 'true') {
+                $params['sendtscustomerreport'] = $this->mrDomainDA->fmttrue;
+            } else {
+                $params['sendtscustomerreport'] = $this->mrDomainDA->fmtfalse;
+            }
+            
             if (
                 !isset($params['customerid'] )
                 or !strlen( $params['customerid'] )
@@ -148,6 +155,7 @@ class InnoworkProject extends InnoworkItem {
                 case 'estimatedrevenue':
                 case 'realrevenue':
                 case 'done':
+                case 'sendtscustomerreport':
                     $keys .= $key_pre.$key;
                     $values .= $value_pre.$this->mrDomainDA->formatText( $val );
                     break;
@@ -207,22 +215,23 @@ class InnoworkProject extends InnoworkItem {
             {
                 $start = 1;
                 $update_str = '';
-
-                
                 $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
-
+                
                 if ( isset($params['done'] ) )
                 {
                     if ( $params['done'] == 'true' ) $params['done'] = $this->mrDomainDA->fmttrue;
                     else $params['done'] = $this->mrDomainDA->fmtfalse;
                 }
 
+                if ( isset($params['sendtscustomerreport'] ) ) {
+                    if ( $params['sendtscustomerreport'] == 'true' ) $params['sendtscustomerreport'] = $this->mrDomainDA->fmttrue;
+                    else $params['sendtscustomerreport'] = $this->mrDomainDA->fmtfalse;
+                }
+                
                 while ( list( $field, $value ) = each( $params ) )
                 {
                     if ( $field != 'id' )
                     {
-                        if ( !$start ) $update_str .= ',';
-
                         switch ( $field )
                         {
                         case 'name':
@@ -232,6 +241,9 @@ class InnoworkProject extends InnoworkItem {
                         case 'estimatedrevenue':
                         case 'realrevenue':
                         case 'done':
+                        case 'sendtscustomerreport':
+                            if ( !$start ) $update_str .= ',';
+                            $start = 0;
                             $update_str .= $field.'='.$this->mrDomainDA->formatText( $value );
                             break;
 
@@ -239,6 +251,8 @@ class InnoworkProject extends InnoworkItem {
                         case 'realstartdate':
                         case 'estimatedenddate':
                         case 'realenddate':
+                            if ( !$start ) $update_str .= ',';
+                            $start = 0;
                             $date_array = $country->getDateArrayFromShortDateStamp( $value );
                             $value = $this->mrDomainDA->getTimestampFromDateArray( $date_array );
 
@@ -252,14 +266,14 @@ class InnoworkProject extends InnoworkItem {
                         case 'type':
                         case 'estimatedtime':
                         case 'realtime':
+                            if ( !$start ) $update_str .= ',';
+                            $start = 0;
                             $update_str .= $field.'='.$value;
                             break;
 
                         default:
                             break;
                         }
-
-                        $start = 0;
                     }
                 }
 
