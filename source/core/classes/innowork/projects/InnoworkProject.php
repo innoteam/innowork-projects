@@ -128,8 +128,6 @@ class InnoworkProject extends InnoworkItem {
 
         if ( count( $params ) )
         {
-            
-
             $item_id = $this->mrDomainDA->getNextSequenceValue( $this->mTable.'_id_seq' );
 
             $key_pre = $value_pre = $keys = $values = '';
@@ -187,7 +185,9 @@ class InnoworkProject extends InnoworkItem {
                                                '(id,ownerid'.$keys.') '.
                                                'VALUES ('.$item_id.','.
                                                $userId.
-                                               $values.')' ) ) $result = $item_id;
+                                               $values.')' ) ) {
+                    $result = $item_id;
+                }
             }
         }
 
@@ -360,5 +360,3 @@ class InnoworkProject extends InnoworkItem {
         return $result;
     }
 }
-
-?>
