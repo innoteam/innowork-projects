@@ -7,7 +7,8 @@ NEW FEATURES:
 
 CHANGES:
 - Changed innowork-core depency to version 3.3. (Alex Pagnoni)
-
+- Removed the empty value from task fields, when there are list of values.
+  (Alex Pagnoni)
 
 
 1.3.0 - 2014/01/17

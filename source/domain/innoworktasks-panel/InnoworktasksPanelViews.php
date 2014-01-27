@@ -1094,6 +1094,9 @@ $this->toolbars['mail'] = array(
     
         if (isset($GLOBALS['innowork-tasks']['newtaskid'])) {
             $eventData['id'] = $GLOBALS['innowork-tasks']['newtaskid'];
+            $newTask = true;
+        } else {
+            $newTask = false;
         }
     
         $innowork_task = new InnoworkTask(
@@ -1166,16 +1169,24 @@ $this->toolbars['mail'] = array(
         }
     
         $statuses = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_STATUS);
-        $statuses['0'] = $this->localeCatalog->getStr('nostatus.label');
+        if (($newTask == false and $task_data['statusid'] == 0) or !count($statuses)) {
+            $statuses['0'] = $this->localeCatalog->getStr('nostatus.label');
+        }
     
         $priorities = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_PRIORITY);
-        $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
+        if (($newTask == false and $task_data['priorityid'] == 0) or !count($priorities)) {
+            $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
+        }
     
         $resolutions = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_RESOLUTION);
-        $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
+        if (($newTask == false and $task_data['resolutionid'] == 0) or !count($resolutions)) {
+            $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
+        }
     
         $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
-        $types['0'] = $this->localeCatalog->getStr('notype.label');
+        if (($newTask == false and $task_data['typeid'] == 0) or !count($types)) {
+            $types['0'] = $this->localeCatalog->getStr('notype.label');
+        }
     
         if ($task_data['done'] == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
             $done_icon = 'misc3';
