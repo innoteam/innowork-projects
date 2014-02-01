@@ -4,7 +4,6 @@
     <table name="innowork_projects_tasks">
         <field  name="id"   type="integer"  notnull="1"/>
         <field  name="ownerid"  type="integer"  notnull="1"/>
-        <field  name="customerid"   type="integer"/>
         <field  name="projectid"  type="integer"/>
         <field  name="title"    type="text"/>
         <field  name="description"  type="text"/>
