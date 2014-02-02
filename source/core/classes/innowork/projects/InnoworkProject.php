@@ -92,6 +92,11 @@ class InnoworkProject extends InnoworkItem {
             	$params['done'] = $this->mrDomainDA->fmtfalse;
             }
             
+            // Send customer report by default, if not set
+            if (!isset($params['sendtscustomerreport'])) {
+                $params['sendtscustomerreport'] == 'true';
+            }
+            
             if ($params['sendtscustomerreport'] == 'true') {
                 $params['sendtscustomerreport'] = $this->mrDomainDA->fmttrue;
             } else {
