@@ -2723,7 +2723,7 @@ function main_printtimesheet(
 
 	$pj_data = $innowork_dossier->getItem( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId() );
 
-	$innowork_customer = new InnoworkJurisCompany(
+	$innowork_customer = new InnoworkCompany(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
 			$pj_data['customerid']
@@ -2768,8 +2768,8 @@ function main_printtimesheet(
 
 	echo "<html><head><title>Timesheet Report</title><meta charset=\"UTF-8\"></head><body onload=\"window.print()\">\n";
 
-	echo '<table style="width: 100%"><tr><td>SLB N.</td><td>Parte</td><td>Controparte</td><td>Oggetto</td></tr>
-			<tr><td><strong>'.$eventData['projectid'].'</strong></td><td><strong>'.$cust_data['companyname'].'</strong></td><td><strong>'.$pj_data['counterpart'].'</strong></td><td><strong>'.$pj_data['name'].'</strong></td></tr></table>';
+	echo '<table style="width: 100%"><tr><td>Project n.</td><td>Customer</td><td>Title</td></tr>
+			<tr><td><strong>'.$eventData['projectid'].'</strong></td><td><strong>'.$cust_data['companyname'].'</strong></td><td><strong>'.$pj_data['name'].'</strong></td></tr></table>';
 
 	echo "<br><table border=\"1\" cellspacing=\"0\" cellpadding=\"4\" style=\"border: solid 1px; width: 100%;\">\n";
 	echo "<tr>\n";
@@ -2777,8 +2777,6 @@ function main_printtimesheet(
 	echo "<th valign=\"top\">".$headers[1]['label']."</th>\n";
 	echo "<th valign=\"top\">".$headers[2]['label']."</th>\n";
 	echo "<th valign=\"top\">".$headers[3]['label']."</th>\n";
-	echo "<th valign=\"top\">".$headers[4]['label']."</th>\n";
-	echo "<th valign=\"top\">".$headers[5]['label']."</th>\n";
 	echo "</tr>\n";
 
 	foreach ( $timesheet as $ts_row )
@@ -2788,8 +2786,6 @@ function main_printtimesheet(
 		echo "<td valign=\"top\">".$users[$ts_row['userid']]."</td>\n";
 		echo "<td valign=\"top\">".nl2br( $ts_row['description'] )."</td>\n";
 		echo "<td align=\"right\" valign=\"top\">".$ts_row['spenttime']."</td>\n";
-		echo "<td align=\"right\" valign=\"top\">".$ts_row['cost']."</td>\n";
-		echo "<td valign=\"top\">".$cost_types[$ts_row['costtype']]."</td>\n";
 		echo "</tr>\n";
 	}
 	echo "</table>\n";
