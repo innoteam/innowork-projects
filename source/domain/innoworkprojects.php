@@ -144,12 +144,31 @@ function action_editproject( $eventData )
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
-
-    if ( $innowork_project->Edit(
+    
+    if ( $innowork_project->edit(
         $eventData,
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->getStr( 'project_updated.status' );
     else $gPage_status = $gLocale->getStr( 'project_not_updated.status' );
+    
+    $app_deps = new \Innomatic\Application\ApplicationDependencies(
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
+    );
+
+    // Timesheet customer reporting installed?
+    if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+        $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
+        $users = array();
+        
+        while (!$users_query->eof) {
+            $fee_id = 'fee_'.$users_query->getFields('id');
+            if (isset($eventData[$fee_id])) {
+                \Innowork\Timesheet\TimesheetCustomerReportingUtils::setProjectFee($eventData['id'], $users_query->getFields( 'id' ), $eventData[$fee_id]);
+            }
+        
+            $users_query->moveNext();
+        }
+    }
 }
 
 $gAction_disp->addEvent(
@@ -180,7 +199,10 @@ function action_newtsrow(
 	$eventData
 ) {
 
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
@@ -208,7 +230,10 @@ $gAction_disp->addEvent(
 function action_changetsrow(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
@@ -234,7 +259,10 @@ $gAction_disp->addEvent(
 function action_removetsrow(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->deleteTimesheetRow($eventData['rowid']);
 }
 
@@ -247,7 +275,10 @@ function action_consolidate(
 ) {
 	global $gPage_status, $gLocale;
 
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->consolidateTimesheetRow($eventData['rowid']);
 }
 
@@ -258,7 +289,10 @@ $gAction_disp->addEvent(
 function action_unconsolidate(
 		$eventData
 ) {
-	$timesheet = new \Innowork\Timesheet\Timesheet();
+	$timesheet = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet->unconsolidateTimesheetRow( $eventData['rowid'] );
 }
 
@@ -1353,11 +1387,21 @@ function main_showproject( $eventData )
         $app_deps = new \Innomatic\Application\ApplicationDependencies(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
         );
+        
+        // Timesheet installed?
         if ($app_deps->isInstalled('innowork-timesheet')) {
         	$ts_installed = true;
         	$tabs[$tab_counter++]['label'] = $gLocale->getStr('timesheet.tab');
         } else {
         	$ts_installed = false;
+        }
+        
+        // Timesheet customer reporting installed?
+        if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+            $cr_installed = true;
+            $tabs[$tab_counter++]['label'] = $gLocale->getStr('customer_reporting.tab');
+        } else {
+            $cr_installed = false;
         }
         
         $tabs[$tab_counter++]['label'] = $gLocale->getStr('otherprojects.tab');
@@ -1740,6 +1784,84 @@ function main_showproject( $eventData )
                       </children>
                     </vertgroup>';
 		}
+		
+		if ($cr_installed) {
+		    $default_fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getDefaultFees();
+		    $fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFees($eventData['id']);
+		    
+		    $fees_headers[0]['label'] = $gLocale->getStr('fee_user.header');
+		    $fees_headers[1]['label'] = $gLocale->getStr('fee_defaultfee.header');;
+		    $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
+		    
+		    $gXml_def .= '<vertgroup><children>
+		        
+        <horizgroup><args><width>0%</width></args>
+          <children>
+              <label><name>sendtscustomerreport</name>
+                <args><label>'.$gLocale->getStr('send_timesheet_customer_report.label').'</label></args>
+              </label>
+                		
+                <radio><name>sendtscustomerreport</name>
+                  <args>
+                    <disp>action</disp>
+                    <value>true</value>
+                    <label>'.( $gLocale->getStr( 'sendtscsrep_yes.label' ) ).'</label>
+                    <checked>'.( $pj_data['sendtscustomerreport'] != InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse ? 'true' : 'false' ).'</checked>
+                  </args>
+                </radio>
+
+                <radio><name>sendtscustomerreport</name>
+                  <args>
+                    <disp>action</disp>
+                    <value>false</value>
+                    <label>'.( $gLocale->getStr( 'sendtscsrep_not.label' ) ).'</label>
+                    <checked>'.( $pj_data['sendtscustomerreport'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse ? 'true' : 'false' ).'</checked>
+                  </args>
+                </radio>
+                    		
+          </children>
+        </horizgroup>
+                        
+                    	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
+                    		
+                    	<table>
+      <args>
+        <headers type="array">'.WuiXml::encode( $fees_headers ).'</headers>
+      </args>
+        		<children>';
+
+            $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
+            $users = array();
+            
+            $fees_row = 0;
+
+            /*
+            if ($pj_data['english'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
+            	$fee_where = 'for';
+            } else {
+            	$fee_where = 'ita';	
+            }
+            */
+            $fee_where = 'local';
+            
+            while ( !$users_query->eof )
+            {
+            	$user_id = $users_query->getFields( 'id' );
+            
+            	$gXml_def .= '<label row="'.$fees_row.'" col="0"><name>fee</name><args><label>'.$users_query->getFields( 'lname' ).
+            	' '.$users_query->getFields( 'fname' ).'</label></args></label>
+            			<label row="'.$fees_row.'" col="1"><name>fee</name><args><label>'.$default_fees[$user_id][$fee_where].'</label></args></label>
+            			<string row="'.$fees_row.'" col="2"><name>fee_'.$user_id.'</name><args><disp>action</disp><size>7</size><value>'.$fees[$user_id].'</value></args></string>';
+            	
+            	$users_query->moveNext();
+            	$fees_row++;
+            }
+                        
+            $gXml_def .= '
+        		</children>
+                    		</table>
+		        </children></vertgroup>';
+		}
 
             $gXml_def .= '
                 		
@@ -1814,16 +1936,8 @@ function main_showproject( $eventData )
     		<compact>true</compact>
     </args>
 </label>
-                    		
-<label row="'.$row.'" col="3">
-  <args>
-    <label>'.project_cdata( $fields['counterpart'] ).'</label>
-    		<compact>true</compact>
-    		<nowrap>false</nowrap>
-    </args>
-</label>
 
-<link row="'.$row.'" col="4">
+<link row="'.$row.'" col="3">
   <args>
     <label>'.project_cdata( $fields['name'] ).'</label>
     <bold>true</bold>
@@ -1971,7 +2085,10 @@ function main_timesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
@@ -2374,7 +2491,10 @@ function main_timesheetrow(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 
@@ -2603,7 +2723,7 @@ function main_printtimesheet(
 
 	$pj_data = $innowork_dossier->getItem( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId() );
 
-	$innowork_customer = new InnoworkJurisCompany(
+	$innowork_customer = new InnoworkCompany(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
 			$pj_data['customerid']
@@ -2611,7 +2731,10 @@ function main_printtimesheet(
 
 	$cust_data = $innowork_customer->getItem();
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list
@@ -2645,8 +2768,8 @@ function main_printtimesheet(
 
 	echo "<html><head><title>Timesheet Report</title><meta charset=\"UTF-8\"></head><body onload=\"window.print()\">\n";
 
-	echo '<table style="width: 100%"><tr><td>SLB N.</td><td>Parte</td><td>Controparte</td><td>Oggetto</td></tr>
-			<tr><td><strong>'.$eventData['projectid'].'</strong></td><td><strong>'.$cust_data['companyname'].'</strong></td><td><strong>'.$pj_data['counterpart'].'</strong></td><td><strong>'.$pj_data['name'].'</strong></td></tr></table>';
+	echo '<table style="width: 100%"><tr><td>Project n.</td><td>Customer</td><td>Title</td></tr>
+			<tr><td><strong>'.$eventData['projectid'].'</strong></td><td><strong>'.$cust_data['companyname'].'</strong></td><td><strong>'.$pj_data['name'].'</strong></td></tr></table>';
 
 	echo "<br><table border=\"1\" cellspacing=\"0\" cellpadding=\"4\" style=\"border: solid 1px; width: 100%;\">\n";
 	echo "<tr>\n";
@@ -2654,8 +2777,6 @@ function main_printtimesheet(
 	echo "<th valign=\"top\">".$headers[1]['label']."</th>\n";
 	echo "<th valign=\"top\">".$headers[2]['label']."</th>\n";
 	echo "<th valign=\"top\">".$headers[3]['label']."</th>\n";
-	echo "<th valign=\"top\">".$headers[4]['label']."</th>\n";
-	echo "<th valign=\"top\">".$headers[5]['label']."</th>\n";
 	echo "</tr>\n";
 
 	foreach ( $timesheet as $ts_row )
@@ -2665,8 +2786,6 @@ function main_printtimesheet(
 		echo "<td valign=\"top\">".$users[$ts_row['userid']]."</td>\n";
 		echo "<td valign=\"top\">".nl2br( $ts_row['description'] )."</td>\n";
 		echo "<td align=\"right\" valign=\"top\">".$ts_row['spenttime']."</td>\n";
-		echo "<td align=\"right\" valign=\"top\">".$ts_row['cost']."</td>\n";
-		echo "<td valign=\"top\">".$cost_types[$ts_row['costtype']]."</td>\n";
 		echo "</tr>\n";
 	}
 	echo "</table>\n";
@@ -2691,7 +2810,10 @@ function main_exporttimesheet(
 			$eventData['projectid']
 	);
 
-	$timesheet_manager = new \Innowork\Timesheet\Timesheet();
+	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
 	$timesheet = $timesheet_manager->getTimesheet(InnoworkProject::ITEM_TYPE, $eventData['projectid']);
 
 	// Users list

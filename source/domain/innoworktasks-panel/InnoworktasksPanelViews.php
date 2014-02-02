@@ -111,21 +111,6 @@ $this->toolbars['mail'] = array(
             $projects[$id] = $fields['name'];
         }
     
-        $innowork_customers = new InnoworkCompany(
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
-        );
-        $search_results = $innowork_customers->Search(
-                '',
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
-        );
-    
-        $customers_filter['0'] = $this->localeCatalog->getStr('allcustomers.label');
-        while (list($id, $fields) = each($search_results))
-        {
-            $customers_filter[$id] = $fields['companyname'];
-        }
-    
         $statuses = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_STATUS);
         $statuses['0'] = $this->localeCatalog->getStr('allstatuses.label');
     
@@ -141,16 +126,7 @@ $this->toolbars['mail'] = array(
         // Filtering
     
         if (isset($eventData['filter'])) {
-            // Customer
-    
-            $customer_filter_sk = new WuiSessionKey(
-                    'customer_filter',
-                    array(
-                            'value' => $eventData['filter_customerid']
-                    )
-            );
-    
-            if ($eventData['filter_customerid'] != 0) $search_keys['customerid'] = $eventData['filter_customerid'];
+            if ($eventData['filter_projectid'] != 0) $search_keys['projectid'] = $eventData['filter_projectid'];
     
             // Project
     
@@ -248,15 +224,6 @@ $this->toolbars['mail'] = array(
                 $search_keys['assignedto'] = $eventData['filter_assignedto'];
             }
         } else {
-            // Customer
-    
-            $customer_filter_sk = new WuiSessionKey('customer_filter');
-            if (
-            strlen($customer_filter_sk->mValue)
-            and $customer_filter_sk->mValue != 0
-            ) $search_keys['customerid'] = $customer_filter_sk->mValue;
-            $eventData['filter_customerid'] = $customer_filter_sk->mValue;
-    
             // Project
     
             $project_filter_sk = new WuiSessionKey('project_filter');
@@ -408,7 +375,7 @@ $this->toolbars['mail'] = array(
                 $tasks->mSearchOrderBy = 'id'.($sort_order == 'up' ? ' DESC' : '');
                 break;
             case '2':
-                $tasks->mSearchOrderBy = 'customerid'.($sort_order == 'up' ? ' DESC' : '');
+                $tasks->mSearchOrderBy = 'projectid'.($sort_order == 'up' ? ' DESC' : '');
                 break;
             case '3':
                 $tasks->mSearchOrderBy = 'title'.($sort_order == 'up' ? ' DESC' : '');
@@ -463,7 +430,7 @@ $this->toolbars['mail'] = array(
                         'default',
                         array('sortby' => '1')
                 )));
-        $headers[1]['label'] = $this->localeCatalog->getStr('customer.header');
+        $headers[1]['label'] = $this->localeCatalog->getStr('project.header');
         $headers[1]['link'] = \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('',
                 array(array(
                         'view',
@@ -598,25 +565,12 @@ $this->toolbars['mail'] = array(
           </args>
         </button>
     
-    <label row="1" col="0"><name>customer</name>
-      <args>
-        <label>'.$this->localeCatalog->getStr('filter_customer.label').'</label>
-      </args>
-    </label>
-    <combobox row="1" col="1"><name>filter_customerid</name>
-      <args>
-        <disp>view</disp>
-        <elements type="array">'.WuiXml::encode($customers_filter).'</elements>
-        <default>'.(isset($eventData['filter_customerid']) ? $eventData['filter_customerid'] : '').'</default>
-      </args>
-    </combobox>
-    
-    <label row="2" col="0"><name>project</name>
+    <label row="1" col="0"><name>project</name>
       <args>
         <label>'.$this->localeCatalog->getStr('filter_project.label').'</label>
       </args>
     </label>
-    <combobox row="2" col="1"><name>filter_projectid</name>
+    <combobox row="1" col="1"><name>filter_projectid</name>
       <args>
         <disp>view</disp>
         <elements type="array">'.WuiXml::encode($projects).'</elements>
@@ -624,13 +578,13 @@ $this->toolbars['mail'] = array(
       </args>
     </combobox>
     
-        <label row="3" col="0">
+        <label row="2" col="0">
           <args>
             <label>'.$this->localeCatalog->getStr('openedby.label').'</label>
           </args>
         </label>
     
-        <combobox row="3" col="1"><name>filter_openedby</name>
+        <combobox row="2" col="1"><name>filter_openedby</name>
           <args>
             <disp>view</disp>
             <elements type="array">'.WuiXml::encode($users).'</elements>
@@ -638,13 +592,13 @@ $this->toolbars['mail'] = array(
           </args>
         </combobox>
     
-        <label row="4" col="0">
+        <label row="3" col="0">
           <args>
             <label>'.$this->localeCatalog->getStr('assignedto.label').'</label>
           </args>
         </label>
     
-        <combobox row="4" col="1"><name>filter_assignedto</name>
+        <combobox row="3" col="1"><name>filter_assignedto</name>
           <args>
             <disp>view</disp>
             <elements type="array">'.WuiXml::encode($users).'</elements>
@@ -784,14 +738,6 @@ $this->toolbars['mail'] = array(
                             break;
                     }
     
-                    $tmp_customer = new InnoworkCompany(
-                            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
-                            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
-                            $task['customerid']
-                    );
-    
-                    $tmp_customer_data = $tmp_customer->getItem();
-    
                     $tmp_project = new InnoworkProject(
                             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
                             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
@@ -836,28 +782,7 @@ $this->toolbars['mail'] = array(
     </link>
   </children>
 </horizgroup>
-<vertgroup row="'.$row.'" col="1" halign="" valign="top">
-  <children>
-    
-<link><name>customer</name>
-  <args>
-    <link>'.WuiXml::cdata(\Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString(
-                $summaries['directorycompany']['domainpanel'],
-                array(
-                        array(
-                                $summaries['directorycompany']['showdispatcher'],
-                                $summaries['directorycompany']['showevent'],
-                                array('id' => $task['customerid'])
-                        )
-                )
-        )).'</link>
-    <label>'.WuiXml::cdata('<strong>'.$tmp_customer_data['companyname'].'</strong>').'</label>
-    <compact>true</compact>
-    <nowrap>false</nowrap>
-  </args>
-</link>
-    
-<link><name>project</name>
+<link row="'.$row.'" col="1" halign=""><name>project</name>
   <args>
     <link>'.WuiXml::cdata(\Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString(
                 $summaries['project']['domainpanel'],
@@ -874,9 +799,6 @@ $this->toolbars['mail'] = array(
     <nowrap>false</nowrap>
   </args>
 </link>
-    
-  </children>
-</vertgroup>
 <label row="'.$row.'" col="2">
   <args>
     <label>'.WuiXml::cdata($task['title']).'</label>
@@ -977,20 +899,20 @@ $this->toolbars['mail'] = array(
             $eventData
     )
     {    
-        // Companies
+        // Projects
     
-        require_once('innowork/groupware/InnoworkCompany.php');
-        $innowork_companies = new InnoworkCompany(
+        require_once('innowork/projects/InnoworkProject.php');
+        $innowork_projects = new InnoworkProject(
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
-        $search_results = $innowork_companies->Search(
+        $search_results = $innowork_projects->search(
                 '',
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
-        $customers[0] = $this->localeCatalog->getStr('nocustomer.label');
+        $projects[0] = $this->localeCatalog->getStr('noproject.label');
         while (list($id, $fields) = each($search_results)) {
-            $customers[$id] = $fields['companyname'];
+            $projects[$id] = $fields['name'];
         }
     
         $headers[0]['label'] = $this->localeCatalog->getStr('newtask.header');
@@ -1030,14 +952,14 @@ $this->toolbars['mail'] = array(
     
                 <label row="0" col="0">
                   <args>
-                    <label>'.$this->localeCatalog->getStr('customer.label').'</label>
+                    <label>'.$this->localeCatalog->getStr('project.label').'</label>
                   </args>
                 </label>
     
-                <combobox row="0" col="1"><name>customerid</name>
+                <combobox row="0" col="1"><name>projectid</name>
                   <args>
                     <disp>action</disp>
-                    <elements type="array">'.WuiXml::encode($customers).'</elements>
+                    <elements type="array">'.WuiXml::encode($projects).'</elements>
                   </args>
                 </combobox>
     
@@ -1094,6 +1016,9 @@ $this->toolbars['mail'] = array(
     
         if (isset($GLOBALS['innowork-tasks']['newtaskid'])) {
             $eventData['id'] = $GLOBALS['innowork-tasks']['newtaskid'];
+            $newTask = true;
+        } else {
+            $newTask = false;
         }
     
         $innowork_task = new InnoworkTask(
@@ -1111,7 +1036,7 @@ $this->toolbars['mail'] = array(
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
         $search_results = $innowork_projects->Search(
-            array('customerid' => $task_data['customerid']),
+            '',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
     
@@ -1122,21 +1047,7 @@ $this->toolbars['mail'] = array(
         }
     
         // Companies
-    
-        require_once('innowork/groupware/InnoworkCompany.php');
-        $innowork_companies = new InnoworkCompany(
-            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
-            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
-        );
-        $search_results = $innowork_companies->Search(
-            '',
-            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
-        );
-        $customers[0] = $this->localeCatalog->getStr('nocustomer.label');
-        while (list($id, $fields) = each($search_results)) {
-            $customers[$id] = $fields['companyname'];
-        }
-    
+        
         // "Assigned to" user
         if ($task_data['assignedto'] != '') {
             $assignedto_user = $task_data['assignedto'];
@@ -1166,16 +1077,24 @@ $this->toolbars['mail'] = array(
         }
     
         $statuses = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_STATUS);
-        $statuses['0'] = $this->localeCatalog->getStr('nostatus.label');
+        if (($newTask == false and $task_data['statusid'] == 0) or !count($statuses)) {
+            $statuses['0'] = $this->localeCatalog->getStr('nostatus.label');
+        }
     
         $priorities = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_PRIORITY);
-        $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
+        if (($newTask == false and $task_data['priorityid'] == 0) or !count($priorities)) {
+            $priorities['0'] = $this->localeCatalog->getStr('nopriority.label');
+        }
     
         $resolutions = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_RESOLUTION);
-        $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
+        if (($newTask == false and $task_data['resolutionid'] == 0) or !count($resolutions)) {
+            $resolutions['0'] = $this->localeCatalog->getStr('noresolution.label');
+        }
     
         $types = InnoworkTaskField::getFields(InnoworkTaskField::TYPE_TYPE);
-        $types['0'] = $this->localeCatalog->getStr('notype.label');
+        if (($newTask == false and $task_data['typeid'] == 0) or !count($types)) {
+            $types['0'] = $this->localeCatalog->getStr('notype.label');
+        }
     
         if ($task_data['done'] == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
             $done_icon = 'misc3';
@@ -1235,20 +1154,6 @@ $this->toolbars['mail'] = array(
                     <width>0%</width>
                   </args>
                   <children>
-    
-                    <label>
-                      <args>
-                        <label>'.$this->localeCatalog->getStr('customer.label').'</label>
-                      </args>
-                    </label>
-    
-                    <combobox><name>customerid</name>
-                      <args>
-                        <disp>action</disp>
-                        <elements type="array">'.WuiXml::encode($customers).'</elements>
-                        <default>'.$task_data['customerid'].'</default>
-                      </args>
-                    </combobox>
     
                     <label>
                       <args>

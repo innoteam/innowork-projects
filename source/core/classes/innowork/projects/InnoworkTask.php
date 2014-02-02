@@ -10,6 +10,7 @@ class InnoworkTask extends InnoworkItem
     public $mNoTrash = false;
     public $mConvertible = true;
     public $mNoAcl = true;
+    public $mTypeTags = array('task');
     const ITEM_TYPE = 'task';
 
     //var $mNoAcl = true;
@@ -23,7 +24,6 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['title'] = 'text';
         $this->mKeys['description'] = 'text';
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
-        $this->mKeys['customerid'] = 'table:innowork_directory_companies:companyname:integer';
         $this->mKeys['statusid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['priorityid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['resolutionid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
@@ -34,7 +34,6 @@ class InnoworkTask extends InnoworkItem
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
-        $this->mSearchResultKeys[] = 'customerid';
         $this->mSearchResultKeys[] = 'typeid';
         $this->mSearchResultKeys[] = 'statusid';
         $this->mSearchResultKeys[] = 'priorityid';
@@ -47,7 +46,6 @@ class InnoworkTask extends InnoworkItem
         $this->mViewableSearchResultKeys[] = 'id';
         $this->mViewableSearchResultKeys[] = 'title';
         $this->mViewableSearchResultKeys[] = 'projectid';
-        $this->mViewableSearchResultKeys[] = 'customerid';
         $this->mViewableSearchResultKeys[] = 'typeid';
         $this->mViewableSearchResultKeys[] = 'statusid';
         $this->mViewableSearchResultKeys[] = 'priorityid';
@@ -60,7 +58,6 @@ class InnoworkTask extends InnoworkItem
         $this->mShowDispatcher = 'view';
         $this->mShowEvent = 'showtask';
 
-        $this->mGenericFields['companyid'] = 'customerid';
         $this->mGenericFields['projectid'] = 'projectid';
         $this->mGenericFields['title'] = 'title';
         $this->mGenericFields['content'] = 'description';
@@ -76,11 +73,6 @@ class InnoworkTask extends InnoworkItem
 
             if ( $params['done'] == 'true' ) $params['done'] = $this->mrDomainDA->fmttrue;
             else $params['done'] = $this->mrDomainDA->fmtfalse;
-
-            if (
-                !isset($params['customerid'] )
-                or !strlen( $params['customerid'] )
-                ) $params['customerid'] = '0';
 
             if (
                 !isset($params['projectid'] )
@@ -151,7 +143,6 @@ class InnoworkTask extends InnoworkItem
                     break;
 
                 case 'projectid':
-                case 'customerid':
                 case 'statusid':
                 case 'priorityid':
                 case 'typeid':
@@ -223,7 +214,6 @@ class InnoworkTask extends InnoworkItem
                             break;
 
                         case 'projectid':
-                        case 'customerid':
                         case 'statusid':
                         case 'priorityid':
                         case 'typeid':
@@ -407,31 +397,16 @@ class InnoworkTask extends InnoworkItem
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
                 );
 
-            $innowork_companies = new InnoworkCompany(
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
-                );
-            $search_results = $innowork_companies->Search(
-                '',
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
-                );
-            $customers[0] = $locale->getStr( 'nocustomer.label' );
-            while ( list( $id, $fields ) = each( $search_results ) ) {
-                $customers[$id] = $fields['companyname'];
-            }
             unset( $locale );
             unset( $search_results );
         }
 
         foreach ( $tasks_search as $task ) {
-            $customer = strlen( $customers[$task['customerid']] ) > 25 ?
-                substr( $customers[$task['customerid']], 0, 22 ).'...' :
-                $customers[$task['customerid']];
 
             $result .=
 '<link>
   <args>
-    <label type="encoded">'.urlencode( '- '.$task['id'].' ('.$customer.')' ).'</label>
+    <label type="encoded">'.urlencode( '- '.$task['id']).'</label>
     <link type="encoded">'.urlencode(
         WuiEventsCall::buildEventsCallString( 'innoworktasks', array(
                 array(
