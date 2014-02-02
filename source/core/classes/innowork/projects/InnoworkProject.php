@@ -94,7 +94,7 @@ class InnoworkProject extends InnoworkItem {
             
             // Send customer report by default, if not set
             if (!isset($params['sendtscustomerreport'])) {
-                $params['sendtscustomerreport'] == 'true';
+                $params['sendtscustomerreport'] = 'true';
             }
             
             if ($params['sendtscustomerreport'] == 'true') {
