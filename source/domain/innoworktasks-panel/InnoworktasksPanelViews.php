@@ -907,7 +907,7 @@ $this->toolbars['mail'] = array(
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
         $search_results = $innowork_projects->search(
-                '',
+                array('done' => \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()->fmtfalse),
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
         $projects[0] = $this->localeCatalog->getStr('noproject.label');
