@@ -5,7 +5,8 @@ CHANGES:
 
 NEW FEATURES:
 - Added project autocomplete when creating a new task. (Alex Pagnoni)
- 
+- Added timesheet customer report email. (Alex Pagnoni)
+
 
 
 1.4.0 - 2014/02/02

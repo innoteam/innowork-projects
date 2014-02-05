@@ -34,6 +34,7 @@ class InnoworkProject extends InnoworkItem {
         $this->mKeys['responsible'] = 'integer';
         $this->mKeys['done'] = 'boolean';
         $this->mKeys['sendtscustomerreport'] = 'boolean';
+        $this->mKeys['tscustomerreportemail'] = 'text';
         $this->mKeys['status'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
         $this->mKeys['priority'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
         $this->mKeys['type'] = 'table:innowork_projects_fields_values:fieldvalue:integer';
@@ -161,6 +162,7 @@ class InnoworkProject extends InnoworkItem {
                 case 'realrevenue':
                 case 'done':
                 case 'sendtscustomerreport':
+                case 'tscustomerreportemail':
                     $keys .= $key_pre.$key;
                     $values .= $value_pre.$this->mrDomainDA->formatText( $val );
                     break;
@@ -247,6 +249,7 @@ class InnoworkProject extends InnoworkItem {
                         case 'realrevenue':
                         case 'done':
                         case 'sendtscustomerreport':
+                        case 'tscustomerreportemail':
                             if ( !$start ) $update_str .= ',';
                             $start = 0;
                             $update_str .= $field.'='.$this->mrDomainDA->formatText( $value );

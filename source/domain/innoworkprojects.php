@@ -1794,13 +1794,14 @@ function main_showproject( $eventData )
 		    $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
 		    
 		    $gXml_def .= '<vertgroup><children>
-		        
-        <horizgroup><args><width>0%</width></args>
-          <children>
-              <label><name>sendtscustomerreport</name>
+		      
+		        <grid><children>
+              <label row="0" col="0"><name>sendtscustomerreport</name>
                 <args><label>'.$gLocale->getStr('send_timesheet_customer_report.label').'</label></args>
               </label>
                 		
+        <horizgroup row="0" col="1"><args><width>0%</width></args>
+          <children>
                 <radio><name>sendtscustomerreport</name>
                   <args>
                     <disp>action</disp>
@@ -1821,6 +1822,20 @@ function main_showproject( $eventData )
                     		
           </children>
         </horizgroup>
+                        
+              <label row="1" col="0"><name>tscustomerreportemail</name>
+                <args><label>'.$gLocale->getStr('timesheet_customer_report_email.label').'</label></args>
+              </label>
+
+            <string row="1" col="1"><name>tscustomerreportemail</name>
+              <args>
+                <disp>action</disp>
+                <size>50</size>
+                    <value>'.WuiXml::cdata($pj_data['tscustomerreportemail']).'</value>
+              </args>
+            </string>
+                        
+        </children></grid>
                         
                     	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
                     		
