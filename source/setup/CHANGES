@@ -3,6 +3,9 @@
 CHANGES:
 - Archived projects are filtered out when creating a new task. (Alex Pagnoni)
 
+NEW FEATURES:
+- Added project autocomplete when creating a new task. (Alex Pagnoni)
+ 
 
 
 1.4.0 - 2014/02/02

@@ -36,6 +36,11 @@ class InnoworktasksPanelActions extends \Innomatic\Desktop\Panel\PanelActions
     		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
     		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     	);
+    	
+    	if (isset($eventData['projectid_id'])) {
+    	    $eventData['projectid'] = $eventData['projectid_id'];
+    	    unset($eventData['projectid_id']);
+    	}
     
     	if ($task->Create($eventData)) {
     		$GLOBALS['innowork-tasks']['newtaskid'] = $task->mItemId;
