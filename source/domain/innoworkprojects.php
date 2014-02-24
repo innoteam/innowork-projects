@@ -156,7 +156,7 @@ function action_editproject( $eventData )
     );
 
     // Timesheet customer reporting installed?
-    if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+    if ($app_deps->isInstalled('innowork-timesheet-customer-reporting') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('edit_timesheet_fees')) {
         $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
         $users = array();
         
@@ -198,7 +198,10 @@ $gAction_disp->addEvent(
 function action_newtsrow(
 	$eventData
 ) {
-
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
+        return;
+    }
+    
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -230,6 +233,10 @@ $gAction_disp->addEvent(
 function action_changetsrow(
 		$eventData
 ) {
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
+        return;
+    }
+    
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -259,6 +266,10 @@ $gAction_disp->addEvent(
 function action_removetsrow(
 		$eventData
 ) {
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
+        return;
+    }
+    
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -273,6 +284,10 @@ $gAction_disp->addEvent(
 function action_consolidate(
 		$eventData
 ) {
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('consolidate_hours')) {
+        return;
+    }
+    
 	global $gPage_status, $gLocale;
 
 	$timesheet = new \Innowork\Timesheet\Timesheet(
@@ -289,6 +304,10 @@ $gAction_disp->addEvent(
 function action_unconsolidate(
 		$eventData
 ) {
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('consolidate_hours')) {
+        return;
+    }
+    
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -1389,7 +1408,7 @@ function main_showproject( $eventData )
         );
         
         // Timesheet installed?
-        if ($app_deps->isInstalled('innowork-timesheet')) {
+        if ($app_deps->isInstalled('innowork-timesheet') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
         	$ts_installed = true;
         	$tabs[$tab_counter++]['label'] = $gLocale->getStr('timesheet.tab');
         } else {
@@ -1397,7 +1416,7 @@ function main_showproject( $eventData )
         }
         
         // Timesheet customer reporting installed?
-        if ($app_deps->isInstalled('innowork-timesheet-customer-reporting')) {
+        if ($app_deps->isInstalled('innowork-timesheet-customer-reporting') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('edit_timesheet_fees')) {
             $cr_installed = true;
             $tabs[$tab_counter++]['label'] = $gLocale->getStr('customer_reporting.tab');
         } else {
@@ -2094,6 +2113,10 @@ function main_timesheet(
 {
 	global $gXml_def, $gLocale;
 
+	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
+	    return;
+	}
+	
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2500,6 +2523,11 @@ function main_timesheetrow(
 {
 	global $gXml_def, $gLocale;
 
+	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
+	    $this->viewDefault($eventData);
+	    return;
+	}
+	
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2730,6 +2758,10 @@ function main_printtimesheet(
 {
 	global $gXml_def, $gLocale;
 
+	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('view_hours_all')) {
+	    return;
+	}
+	
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2819,6 +2851,10 @@ function main_exporttimesheet(
 {
 	global $gXml_def, $gLocale;
 
+	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('view_hours_all')) {
+	    return;
+	}
+	
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),

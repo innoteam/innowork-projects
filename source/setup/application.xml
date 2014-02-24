@@ -12,7 +12,8 @@
 		<category>intranet</category>
 		<iconfile></iconfile>
 		<dependencies>
-			<dependency>innowork-core[3.3]</dependency>
+            <dependency>innomatic[6.4.0]</dependency>
+			<dependency>innowork-core[3.4.0]</dependency>
             <dependency>innowork-groupware</dependency>
 			<dependency>phplotlib[5.0-3]</dependency>
 			<suggestion>innowork-timesheet</suggestion>
