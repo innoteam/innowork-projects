@@ -73,6 +73,9 @@
 			icon="plan" icontype="apps" domainpanel="innoworkprojects"
 			miniicon="edit" summaryname="projects-name" showmode="list" />
 
+        <permission name="add_projects" title="add_projects" description="" catalog="innowork-projects::roles" defaultroles="accounting,seniormanager,projectmanager" />
+        <permission name="view_all_projects" title="view_all_projects" description="" catalog="innowork-projects::roles" defaultroles="accounting,seniormanager" />
+
         <!-- Tasks -->
         
         <domainpanel name="innoworktasks"

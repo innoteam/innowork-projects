@@ -63,8 +63,10 @@ $gToolbars['projects'] = array(
             'view',
             'default',
             array( 'done' => 'true' ) ) ) )
-        ),
-    'newproject' => array(
+        ));
+
+if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+    $gToolbars['projects']['newproject'] = array(
         'label' => $gLocale->getStr( 'newproject.toolbar' ),
         'themeimage' => 'mathadd',
         'horiz' => 'true',
@@ -72,9 +74,10 @@ $gToolbars['projects'] = array(
             'view',
             'newproject',
             '' ) ) )
-        )
-    );
+        );
+}
 
+/*
 $gToolbars['stats'] = array(
     'stats' => array(
         'label' => $gLocale->getStr( 'statistics.toolbar' ),
@@ -86,7 +89,9 @@ $gToolbars['stats'] = array(
             '' ) ) )
         )
     );
+ */
 
+/*
 $gToolbars['prefs'] = array(
     'prefs' => array(
         'label' => $gLocale->getStr( 'preferences.toolbar' ),
@@ -98,6 +103,7 @@ $gToolbars['prefs'] = array(
             '' ) ) )
         )
     );
+ */
 
 // ----- Action dispatcher -----
 //
@@ -117,6 +123,10 @@ $gAction_disp->addEvent(
     );
 function action_newproject( $eventData )
 {
+    if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+        return false;
+    }
+
     global $gLocale, $gPage_status;
 
     $innowork_project = new InnoworkProject(
@@ -944,6 +954,8 @@ $gMain_disp->addEvent(
     );
 function main_newproject( $eventData )
 {
+    return main_default();
+
     global $gXml_def, $gLocale, $gPage_title;
 
         $innowork_companies = new InnoworkCompany(
