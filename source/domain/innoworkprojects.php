@@ -11,7 +11,7 @@ require_once('innomatic/wui/dispatch/WuiEventsCall.php');
 require_once('innomatic/wui/dispatch/WuiEvent.php');
 require_once('innomatic/wui/dispatch/WuiEventRawData.php');
 require_once('innomatic/wui/dispatch/WuiDispatcher.php');
-require_once('innomatic/locale/LocaleCatalog.php'); require_once('innomatic/locale/LocaleCountry.php'); 
+require_once('innomatic/locale/LocaleCatalog.php'); require_once('innomatic/locale/LocaleCountry.php');
 require_once('shared/wui/WuiSessionkey.php');
 require_once('innowork/groupware/InnoworkCompany.php');
 
@@ -22,7 +22,7 @@ function project_cdata($data) {
 }
 
 require_once('innowork/core/InnoworkCore.php');
-$gInnowork_core = InnoworkCore::instance('innoworkcore', 
+$gInnowork_core = InnoworkCore::instance('innoworkcore',
     \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
     \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     );
@@ -123,7 +123,7 @@ $gAction_disp->addEvent(
     );
 function action_newproject( $eventData )
 {
-    if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
         return false;
     }
 
@@ -154,13 +154,13 @@ function action_editproject( $eventData )
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
-    
+
     if ( $innowork_project->edit(
         $eventData,
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->getStr( 'project_updated.status' );
     else $gPage_status = $gLocale->getStr( 'project_not_updated.status' );
-    
+
     $app_deps = new \Innomatic\Application\ApplicationDependencies(
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
     );
@@ -169,13 +169,13 @@ function action_editproject( $eventData )
     if ($app_deps->isInstalled('innowork-timesheet-customer-reporting') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('edit_timesheet_fees')) {
         $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
         $users = array();
-        
+
         while (!$users_query->eof) {
             $fee_id = 'fee_'.$users_query->getFields('id');
             if (isset($eventData[$fee_id])) {
                 \Innowork\Timesheet\TimesheetCustomerReportingUtils::setProjectFee($eventData['id'], $users_query->getFields( 'id' ), $eventData[$fee_id]);
             }
-        
+
             $users_query->moveNext();
         }
     }
@@ -211,12 +211,12 @@ function action_newtsrow(
     if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
         return;
     }
-    
+
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
-	
+
 	$locale_country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
 	);
@@ -246,7 +246,7 @@ function action_changetsrow(
     if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
         return;
     }
-    
+
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -279,7 +279,7 @@ function action_removetsrow(
     if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
         return;
     }
-    
+
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -297,7 +297,7 @@ function action_consolidate(
     if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('consolidate_hours')) {
         return;
     }
-    
+
 	global $gPage_status, $gLocale;
 
 	$timesheet = new \Innowork\Timesheet\Timesheet(
@@ -317,7 +317,7 @@ function action_unconsolidate(
     if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('consolidate_hours')) {
         return;
     }
-    
+
 	$timesheet = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -608,12 +608,12 @@ function main_default( $eventData )
         }
 
     $search_keys['done'] = $done_check;
-    
+
     $search_results = $projects->Search(
         $search_keys,
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
-        
+
     $num_projects = count( $search_results );
 
         $gXml_def =
@@ -768,7 +768,7 @@ function main_default( $eventData )
       <children>
 ';
 
-        $innowork_core = InnoworkCore::instance('innoworkcore', 
+        $innowork_core = InnoworkCore::instance('innoworkcore',
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
             );
@@ -785,7 +785,7 @@ function main_default( $eventData )
                     else
                     {
 						require_once('shared/wui/WuiTable.php');
-                    	
+
                         $table = new WuiTable(
                             'projects_done_'.$eventData['done'],
                             array(
@@ -800,7 +800,7 @@ function main_default( $eventData )
 
                     $from = ( $page * 15 ) - 15;
                     $to = $from + 15 - 1;
-        
+
 
         while ( list( $id, $fields ) = each( $search_results ) )
         {
@@ -867,7 +867,7 @@ if ( $row >= $from and $row <= $to )
     <label>'.project_cdata( $cust_data['companyname'] ).'</label>
   </args>
 </link>
-    		
+
 <label row="'.$row.'" col="3">
   <args>
     <label>'.project_cdata( $priorities[$fields['priority']] ).'</label>
@@ -954,7 +954,10 @@ $gMain_disp->addEvent(
     );
 function main_newproject( $eventData )
 {
-    return main_default();
+
+    if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+        return main_default();
+    }
 
     global $gXml_def, $gLocale, $gPage_title;
 
@@ -1012,7 +1015,7 @@ function main_newproject( $eventData )
                 ) ) ).'</headers>
       </args>
       <children>
-    
+
     <form row="0" col="0"><name>project</name>
       <args>
         <method>post</method>
@@ -1056,7 +1059,7 @@ function main_newproject( $eventData )
                 <label>'.( $gLocale->getStr( 'description.label' ) ).'</label>
               </args>
             </label>
-          
+
           </children>
         </horizgroup>
 
@@ -1414,11 +1417,11 @@ function main_showproject( $eventData )
 
         $tab_counter = 0;
         $tabs[$tab_counter++]['label'] = $gLocale->getStr('projectdata.tab');
-        
+
         $app_deps = new \Innomatic\Application\ApplicationDependencies(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
         );
-        
+
         // Timesheet installed?
         if ($app_deps->isInstalled('innowork-timesheet') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
         	$ts_installed = true;
@@ -1426,7 +1429,7 @@ function main_showproject( $eventData )
         } else {
         	$ts_installed = false;
         }
-        
+
         // Timesheet customer reporting installed?
         if ($app_deps->isInstalled('innowork-timesheet-customer-reporting') && \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('edit_timesheet_fees')) {
             $cr_installed = true;
@@ -1434,9 +1437,9 @@ function main_showproject( $eventData )
         } else {
             $cr_installed = false;
         }
-        
+
         $tabs[$tab_counter++]['label'] = $gLocale->getStr('otherprojects.tab');
-        
+
     $gXml_def .=
 '<horizgroup>
   <children>
@@ -1523,12 +1526,12 @@ function main_showproject( $eventData )
 
           </children>
         </horizgroup>
-                		
+
 
 
             <horizgroup><name>tabs</name>
               <children>
-    
+
                 <tab><name>extras</name>
                   <args>
                     <tabs type="array">'.WuiXml::encode($tabs).'</tabs>
@@ -1536,7 +1539,7 @@ function main_showproject( $eventData )
                     <activetab>'. (isset($eventData['extrastab']) ? $eventData['extrastab'] : '0').'</activetab>
                   </args>
                   <children>
-    
+
 <!-- Project data -->
 
 					<vertgroup><children>
@@ -1781,9 +1784,9 @@ function main_showproject( $eventData )
           </children>
         </horizgroup>
                     </children></vertgroup>';
-            
+
         // Timesheet tab
-        
+
 		if ($ts_installed) {
             $gXml_def .= '
                     <vertgroup>
@@ -1810,27 +1813,27 @@ function main_showproject( $eventData )
             <scrolling>auto</scrolling>
           </args>
         </iframe>
-                		
-    
+
+
                       </children>
                     </vertgroup>';
 		}
-		
+
 		if ($cr_installed) {
 		    $default_fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getDefaultFees();
 		    $fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFees($eventData['id']);
-		    
+
 		    $fees_headers[0]['label'] = $gLocale->getStr('fee_user.header');
 		    $fees_headers[1]['label'] = $gLocale->getStr('fee_defaultfee.header');;
 		    $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
-		    
+
 		    $gXml_def .= '<vertgroup><children>
-		      
+
 		        <grid><children>
               <label row="0" col="0"><name>sendtscustomerreport</name>
                 <args><label>'.$gLocale->getStr('send_timesheet_customer_report.label').'</label></args>
               </label>
-                		
+
         <horizgroup row="0" col="1"><args><width>0%</width></args>
           <children>
                 <radio><name>sendtscustomerreport</name>
@@ -1850,10 +1853,10 @@ function main_showproject( $eventData )
                     <checked>'.( $pj_data['sendtscustomerreport'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse ? 'true' : 'false' ).'</checked>
                   </args>
                 </radio>
-                    		
+
           </children>
         </horizgroup>
-                        
+
               <label row="1" col="0"><name>tscustomerreportemail</name>
                 <args><label>'.$gLocale->getStr('timesheet_customer_report_email.label').'</label></args>
               </label>
@@ -1865,11 +1868,11 @@ function main_showproject( $eventData )
                     <value>'.WuiXml::cdata($pj_data['tscustomerreportemail']).'</value>
               </args>
             </string>
-                        
+
         </children></grid>
-                        
+
                     	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
-                    		
+
                     	<table>
       <args>
         <headers type="array">'.WuiXml::encode( $fees_headers ).'</headers>
@@ -1878,31 +1881,31 @@ function main_showproject( $eventData )
 
             $users_query = \Innowork\Timesheet\Timesheet::getTimesheetUsers();
             $users = array();
-            
+
             $fees_row = 0;
 
             /*
             if ($pj_data['english'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
             	$fee_where = 'for';
             } else {
-            	$fee_where = 'ita';	
+            	$fee_where = 'ita';
             }
             */
             $fee_where = 'local';
-            
+
             while ( !$users_query->eof )
             {
             	$user_id = $users_query->getFields( 'id' );
-            
+
             	$gXml_def .= '<label row="'.$fees_row.'" col="0"><name>fee</name><args><label>'.$users_query->getFields( 'lname' ).
             	' '.$users_query->getFields( 'fname' ).'</label></args></label>
             			<label row="'.$fees_row.'" col="1"><name>fee</name><args><label>'.$default_fees[$user_id][$fee_where].'</label></args></label>
             			<string row="'.$fees_row.'" col="2"><name>fee_'.$user_id.'</name><args><disp>action</disp><size>7</size><value>'.$fees[$user_id].'</value></args></string>';
-            	
+
             	$users_query->moveNext();
             	$fees_row++;
             }
-                        
+
             $gXml_def .= '
         		</children>
                     		</table>
@@ -1910,9 +1913,9 @@ function main_showproject( $eventData )
 		}
 
             $gXml_def .= '
-                		
+
 <!-- Related dossiers -->
-                		
+
                     <vertgroup>
                       <children>
     <table><name>related_dossiers</name>
@@ -1938,10 +1941,10 @@ function main_showproject( $eventData )
         						'done' => 'true'
         				) )
         );
-        
+
         // Related dossiers
         $dossiers_search_results = array();
-        
+
         if ($pj_data['customerid'] != 0 and $pj_data['customerid'] != '') {
         	$innowork_dossiers = new InnoworkProject(
         			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
@@ -1949,19 +1952,19 @@ function main_showproject( $eventData )
         	);
         	$domain_da = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess();
         	$dossiers_search_query = $domain_da->execute('SELECT * FROM innowork_projects WHERE customerid='.$pj_data['customerid'].' ORDER BY id DESC');
-        	 
+
         	while (!$dossiers_search_query->eof) {
         		$dossiers_search_results[$dossiers_search_query->getFields('id')] = $dossiers_search_query->getFields();
         		$dossiers_search_query->moveNext();
         	}
         }
-        
+
         while ( list( $id, $fields ) = each( $dossiers_search_results ) )
         {
 			if ($id == $eventData['id']) {
 				continue;
 			}
-        	
+
                 $gXml_def .=
 '<link row="'.$row.'" col="1">
   <args>
@@ -2020,19 +2023,19 @@ function main_showproject( $eventData )
         $gXml_def .=
 '      </children>
     </table>
-    
+
                       </children>
                     </vertgroup>';
 
-            
+
             $gXml_def .= '
                 </children>
               </tab>
 
             </children>
           </horizgroup>
-                		
-                		
+
+
         </children>
         </form>
 
@@ -2128,7 +2131,7 @@ function main_timesheet(
 	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_hours_all')) {
 	    return;
 	}
-	
+
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2173,7 +2176,7 @@ function main_timesheet(
 	<ajaxloader>false</ajaxloader>
   </args>
   <children>
-		
+
 <vertgroup>
   <children>
 <horizgroup row="'.$row.'" col="6" halign="" valign="top">
@@ -2273,7 +2276,7 @@ function main_timesheet(
                 <value type="array">'.WuiXml::encode( $start_date_array ).'</value>
               </args>
             </date>
-		
+
     <combobox row="0" col="1"><name>user</name>
       <args>
         <disp>action</disp>
@@ -2539,7 +2542,7 @@ function main_timesheetrow(
 	    $this->viewDefault($eventData);
 	    return;
 	}
-	
+
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2773,7 +2776,7 @@ function main_printtimesheet(
 	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('view_hours_all')) {
 	    return;
 	}
-	
+
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2866,7 +2869,7 @@ function main_exporttimesheet(
 	if (!\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('view_hours_all')) {
 	    return;
 	}
-	
+
 	$innowork_dossier = new InnoworkProject(
 			InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
@@ -2961,7 +2964,7 @@ function main_stats(
     $tabs[0]['label'] = $gLocale->getStr( 'status.tab' );
     $tabs[1]['label'] = $gLocale->getStr( 'type.tab' );
     $tabs[2]['label'] = $gLocale->getStr( 'priority.tab' );
-    
+
     foreach ( $projects_search as $id => $project_data )
     {
         $_status_data[$project_data['status']]++;
