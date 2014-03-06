@@ -1,50 +1,51 @@
 <?php
-// ----- Initialization -----
-//
 
-require_once('innowork/projects/InnoworkProject.php');
-require_once('innowork/projects/InnoworkProjectField.php');
-require_once('innomatic/wui/Wui.php');
-require_once('innomatic/wui/widgets/WuiWidget.php');
-require_once('innomatic/wui/widgets/WuiContainerWidget.php');
-require_once('innomatic/wui/dispatch/WuiEventsCall.php');
-require_once('innomatic/wui/dispatch/WuiEvent.php');
-require_once('innomatic/wui/dispatch/WuiEventRawData.php');
-require_once('innomatic/wui/dispatch/WuiDispatcher.php');
-require_once('innomatic/locale/LocaleCatalog.php'); require_once('innomatic/locale/LocaleCountry.php');
-require_once('shared/wui/WuiSessionkey.php');
-require_once('innowork/groupware/InnoworkCompany.php');
+require_once 'innowork/projects/InnoworkProject.php';
+require_once 'innowork/projects/InnoworkProjectField.php';
+require_once 'innomatic/wui/Wui.php';
+require_once 'innomatic/wui/widgets/WuiWidget.php';
+require_once 'innomatic/wui/widgets/WuiContainerWidget.php';
+require_once 'innomatic/wui/dispatch/WuiEventsCall.php';
+require_once 'innomatic/wui/dispatch/WuiEvent.php';
+require_once 'innomatic/wui/dispatch/WuiEventRawData.php';
+require_once 'innomatic/wui/dispatch/WuiDispatcher.php';
+require_once 'innomatic/locale/LocaleCatalog.php';
+require_once 'innomatic/locale/LocaleCountry.php';
+require_once 'shared/wui/WuiSessionkey.php';
+require_once 'innowork/groupware/InnoworkCompany.php';
 
-    global $gLocale, $gPage_title, $gXml_def, $gPage_status;
-    global $gMain_disp;
+global $gLocale, $gPage_title, $gXml_def, $gPage_status;
+global $gMain_disp;
+
 function project_cdata($data) {
     return '<![CDATA['.$data.']]>';
 }
 
 require_once('innowork/core/InnoworkCore.php');
-$gInnowork_core = InnoworkCore::instance('innoworkcore',
+$gInnowork_core = InnoworkCore::instance(
+    'innoworkcore',
     \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
     \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
-    );
+);
 
 $gLocale = new LocaleCatalog(
     'innowork-projects::projects_main',
     \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
-    );
+);
 
 $gWui = Wui::instance('wui');
-$gWui->loadWidget( 'xml' );
-$gWui->loadWidget( 'innomaticpage' );
-$gWui->loadWidget( 'innomatictoolbar' );
-$gWui->loadWidget( 'table' );
+$gWui->loadWidget('xml');
+$gWui->loadWidget('innomaticpage');
+$gWui->loadWidget('innomatictoolbar');
+$gWui->loadWidget('table');
 
 $gXml_def = $gPage_status = '';
-$gPage_title = $gLocale->getStr( 'projects.title' );
+$gPage_title = $gLocale->getStr('projects.title');
 $gCore_toolbars = $gInnowork_core->getMainToolBar(
     '',
     'project',
-    isset(Wui::instance('wui')->parameters['wui']['view']['evd']['id'] ) ? Wui::instance('wui')->parameters['wui']['view']['evd']['id'] : ''
-    );
+    isset(Wui::instance('wui')->parameters['wui']['view']['evd']['id']) ? Wui::instance('wui')->parameters['wui']['view']['evd']['id'] : ''
+);
 $gToolbars['projects'] = array(
     'projects' => array(
         'label' => $gLocale->getStr( 'projects.toolbar' ),
