@@ -2,6 +2,8 @@
 ----------------
 CHANGES:
 - Archived projects are filtered out when creating a new task. (Alex Pagnoni)
+- Opened by and assigned to fields are automatically set to the current user
+  when creating a new task. (Alex Pagnoni)
 
 NEW FEATURES:
 - Added project autocomplete when creating a new task. (Alex Pagnoni)

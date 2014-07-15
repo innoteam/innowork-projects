@@ -17,9 +17,9 @@ class InnoworkTask extends InnoworkItem
     //var $mNoLog = true;
     //var $_mCreationAcl = InnoworkAcl::TYPE_PRIVATE;
 
-    public function __construct($rrootDb, $rdomainDA, $mailId = 0)
+    public function __construct($rrootDb, $rdomainDA, $itemId = 0)
     {
-        parent::__construct($rrootDb, $rdomainDA, InnoworkTask::ITEM_TYPE, $mailId);
+        parent::__construct($rrootDb, $rdomainDA, InnoworkTask::ITEM_TYPE, $itemId);
 
         $this->mKeys['title'] = 'text';
         $this->mKeys['description'] = 'text';
@@ -77,7 +77,12 @@ class InnoworkTask extends InnoworkItem
             if (
                 !isset($params['projectid'] )
                 or !strlen( $params['projectid'] )
-                ) $params['projectid'] = '0';
+            ) $params['projectid'] = '0';
+
+            if ($params['projectid'] != 0) {
+                $this->mParentType = 'project';
+                $this->mParentId = $params['projectid'];
+            }
 
             if (
                 !isset($params['statusid'] )
