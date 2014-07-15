@@ -1820,6 +1820,8 @@ function main_showproject( $eventData )
                     </vertgroup>';
 		}
 
+        // Finanze tab
+
 		if ($cr_installed) {
 		    $default_fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getDefaultFees();
 		    $fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFees($eventData['id']);
@@ -1871,8 +1873,147 @@ function main_showproject( $eventData )
             </string>
 
         </children></grid>
+    <horizbar/>';
 
-                    	<label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
+    //***************
+    $proceedings_headers[0]['label'] = 'Periodo di riferimento';
+    $proceedings_headers[1]['label'] = 'Data invio';
+    $proceedings_headers[2]['label'] = 'Imponibile inviato';
+
+    $gXml_def .= '<vertgroup><children>
+        <label><name>Rendiconti inviati</name><args><label>Tariffario</label><bold>true</bold></args></label>
+        <table>
+          <args><headers type="array">'.WuiXml::encode($proceedings_headers).'</headers></args>
+            <children>';
+
+    $projectid = $eventData['id'];
+
+    $reportsQuery = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')
+        ->getCurrentDomain()
+        ->getDataAccess()
+        ->Execute(
+            // "SELECT itrp.*, itrr.senttime, itrr.sentcost, itrr.spenttime, it.userid
+            // FROM innowork_timesheet_reports_projects itrp
+            // LEFT JOIN innowork_timesheet_reports_rows itrr ON itrp.reportid = itrr.reportid
+            // LEFT JOIN innowork_timesheet it ON itrr.timesheetid = it.id
+            // WHERE itrp.sent = 't' AND itrp.projectid = $projectid
+            // ORDER By reportid ASC, userid ASC"
+            "SELECT rows.reportid, rows.projectid, ts.userid AS userid, 
+                    rows.senttime, project.periodfrom, project.periodto, project.sentdate
+            FROM    innowork_timesheet_reports_rows AS rows
+            JOIN    innowork_timesheet AS ts ON ts.id = rows.timesheetid
+            JOIN    innowork_timesheet_reports_projects AS project 
+                ON  project.reportid = rows.reportid and project.projectid = rows.projectid
+            WHERE   rows.projectid = $projectid and project.sent = 't'
+            ORDER By reportid ASC, userid ASC;"
+        );
+
+    $totalSentAmount = 0;
+    $proceedings_row = 0;
+
+    while (!$reportsQuery->eof) {
+        $reportid = $reportsQuery->getFields('reportid');
+        $userid = $reportsQuery->getFields('userid');
+        
+        // $report_rows[$reportid][$userid]['sentamount'] += $reportsQuery->getFields('senttime');
+        
+        $senttime_for_user = $report_rows[$reportid]['senttime_for_user'][$userid] + $reportsQuery->getFields('senttime');
+        $hours = 0;
+        $minutes = 0;
+        list($h, $m) = explode('.', number_format($senttime_for_user, 2));
+        $hours += $h; 
+        $minutes += $m;
+        if ($minutes >= 60) {
+            $minutes -= 60;
+            $hours += 1;
+        }
+        $report_rows[$reportid]['senttime_for_user'][$userid] = (float) $hours.".".$minutes;
+
+        $report_rows[$reportid]['periodfrom'] = $reportsQuery->getFields('periodfrom');
+        $report_rows[$reportid]['periodto'] = $reportsQuery->getFields('periodto');
+        $report_rows[$reportid]['sentdate'] = $reportsQuery->getFields('sentdate');
+        $reportsQuery->moveNext();
+    }
+
+    foreach ($report_rows as $reportid => $report) {
+
+        $sent_amount = 0;
+        foreach ($report_rows[$reportid]['senttime_for_user'] as $userid => $senttime) {
+            $fee = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFee($projectid, $userid);
+            list($hours, $minutes) = explode('.', number_format($senttime, 2));
+            $sent_amount += round(($fee * ($hours + ((1/60)*$minutes))), 2, PHP_ROUND_HALF_DOWN);
+        }
+
+        $gXml_def .= '
+            <label row="'.$proceedings_row.'" col="0">
+                <name>periodfrom</name>
+                <args><label>'
+                    .substr($report['periodfrom'], 0, strpos($report['periodfrom'], ' '))
+                    .' - '.substr($report['periodto'], 0, strpos($report['periodto'], ' '))
+                .'</label></args>
+            </label>
+            <label row="'.$proceedings_row.'" col="1">
+                <name>sentdate</name>
+                <args>
+                    <label>'.substr($report['sentdate'], 0, strpos($report['sentdate'], ' ')).'</label>
+                </args>
+            </label>
+            <label row="'.$proceedings_row.'" col="2">
+                <name>sentamount</name>
+                <args>
+                    <label>'.WuiXml::cdata(number_format($sent_amount, 2)).'</label>
+                </args>
+            </label>';
+
+        $proceedings_row++;
+        $totalSentAmount += $sent_amount;
+
+    }
+
+    $gXml_def .= '
+        <label row="'.$proceedings_row.'" col="0"><name></name><args><label></label></args></label>
+        <label row="'.$proceedings_row.'" col="1"><name></name><args><label>Totale rendiconti inviati</label></args></label>
+        <label row="'.$proceedings_row.'" col="2"><name>totalsentamount</name><args><label>'.number_format($totalSentAmount, 2).'</label></args></label>';
+
+    // $dossier =  new InnoworkJurisDossier(
+    //     InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+    //     InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(), 
+    //     $dossierid
+    // );
+    // $dossier_lawyers_sent_amount = $dossier->getLawyersSentAmount();
+
+    // $gXml_def .= '
+    //     <label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>
+    //     <label row="'.$proceedings_row.'" col="1"><name></name><args><label>Competenze maturate</label></args></label>
+    //     <label row="'.$proceedings_row.'" col="2"><name>totalsentamount</name><args><label>'.number_format($dossier_lawyers_sent_amount, 2).'</label></args></label>';
+
+    // $total = $totalSentAmount + $dossier_lawyers_sent_amount;
+    
+    // $gXml_def .= '
+    //     <label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>
+    //     <label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Totale</label></args></label>
+    //     <label row="'.$proceedings_row.'" col="2"><name>total</name><args><bold>true</bold><label>'.number_format($total, 2).'</label></args></label>';
+
+    // $balance = $pj_data['accecomax'] - $total;
+
+    // $gXml_def .= '<label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>';
+    // if ($balance < 0) {
+    //     $gXml_def .= '<label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Eccedenza</label></args></label>';
+    // } else {
+    //     $gXml_def .= '<label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Capienza</label></args></label>';
+    // }
+    // $gXml_def .= '<label row="'.$proceedings_row.'" col="2"><name>total</name><args><bold>true</bold><label>'.number_format($balance, 2).'</label></args></label>';
+
+    $gXml_def .= '</children>
+                    </table>
+
+              </children>
+            </vertgroup>
+
+
+        <horizbar/>
+
+        <label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr( 'fees.label' )).'</label><bold>true</bold></args></label>
 
                     	<table>
       <args>
