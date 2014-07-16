@@ -1870,10 +1870,11 @@ function main_showproject($eventData)
         // Table Rendiconti Inviati
         $proceedings_headers[0]['label'] = 'Periodo di riferimento';
         $proceedings_headers[1]['label'] = 'Data invio';
-        $proceedings_headers[2]['label'] = 'Imponibile inviato';
+        $proceedings_headers[2]['label'] = 'Imponibile';
 
-        $gXml_def .= '<vertgroup><children>
-            <label><name>Rendiconti inviati</name><args><label>Tariffario</label><bold>true</bold></args></label>
+        $gXml_def .= '<horizgroup><children>
+            <vertgroup><children>
+            <label><name>Rendiconti</name><args><label>Rendiconti</label><bold>true</bold></args></label>
             <table>
               <args><headers type="array">'.WuiXml::encode($proceedings_headers).'</headers></args>
                 <children>';
@@ -1885,24 +1886,28 @@ function main_showproject($eventData)
         $proceedings_row = 0;
         foreach ($report_rows as $reportid => $report) {
 
+            $periodfrom = substr($report['periodfrom'], 0, strpos($report['periodfrom'], ' '));
+            $periodto = substr($report['periodto'], 0, strpos($report['periodto'], ' '));
+            $sentdate = substr($report['sentdate'], 0, strpos($report['sentdate'], ' '));
+
             $gXml_def .= '
                 <label row="'.$proceedings_row.'" col="0">
                     <name>periodfrom</name>
                     <args><label>'
-                        .substr($report['periodfrom'], 0, strpos($report['periodfrom'], ' '))
-                        .' - '.substr($report['periodto'], 0, strpos($report['periodto'], ' '))
+                        .$country->FormatShortArrayDate($country->getDateArrayFromSafeTimestamp($periodfrom)).' - '
+                        .$country->FormatShortArrayDate($country->getDateArrayFromSafeTimestamp($periodto))
                     .'</label></args>
                 </label>
                 <label row="'.$proceedings_row.'" col="1">
                     <name>sentdate</name>
                     <args>
-                        <label>'.substr($report['sentdate'], 0, strpos($report['sentdate'], ' ')).'</label>
+                        <label>'.$country->FormatShortArrayDate($country->getDateArrayFromSafeTimestamp($sentdate)).'</label>
                     </args>
                 </label>
-                <label row="'.$proceedings_row.'" col="2">
+                <label row="'.$proceedings_row.'" col="2" halign="right">
                     <name>sentamount</name>
                     <args>
-                        <label>'.WuiXml::cdata(number_format($report['senttime'], 2)).'</label>
+                        <label>'.WuiXml::cdata($country->formatMoney($report['senttime'])).'</label>
                     </args>
                 </label>';
 
@@ -1913,37 +1918,119 @@ function main_showproject($eventData)
 
         $gXml_def .= '
             <label row="'.$proceedings_row.'" col="0"><name></name><args><label></label></args></label>
-            <label row="'.$proceedings_row.'" col="1"><name></name><args><label>Totale rendiconti inviati</label></args></label>
-            <label row="'.$proceedings_row.'" col="2"><name>totalsentamount</name><args><label>'.number_format($totalSentAmount, 2).'</label></args></label>';
+            <label row="'.$proceedings_row.'" col="1" halign="right"><name></name><args><label>Totale rendiconti inviati</label></args></label>
+            <label row="'.$proceedings_row.'" col="2" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($totalSentAmount).'</label></args></label>';
 
         $amount_report_not_sent = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getAmountReportNotSent($projectid);
 
         $gXml_def .= '
             <label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>
-            <label row="'.$proceedings_row.'" col="1"><name></name><args><label>Competenze maturate</label></args></label>
-            <label row="'.$proceedings_row.'" col="2"><name>totalsentamount</name><args><label>'.number_format($amount_report_not_sent, 2).'</label></args></label>';
+            <label row="'.$proceedings_row.'" col="1" halign="right"><name></name><args><label>Competenze maturate</label></args></label>
+            <label row="'.$proceedings_row.'" col="2" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($amount_report_not_sent).'</label></args></label>';
 
         $total = $totalSentAmount + $amount_report_not_sent;
         
         $gXml_def .= '
             <label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>
-            <label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Totale</label></args></label>
-            <label row="'.$proceedings_row.'" col="2"><name>total</name><args><bold>true</bold><label>'.number_format($total, 2).'</label></args></label>';
-
-        // $balance = $pj_data['accecomax'] - $total;
-
-        // $gXml_def .= '<label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>';
-        // if ($balance < 0) {
-        //     $gXml_def .= '<label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Eccedenza</label></args></label>';
-        // } else {
-        //     $gXml_def .= '<label row="'.$proceedings_row.'" col="1"><name></name><args><bold>true</bold><label>Capienza</label></args></label>';
-        // }
-        // $gXml_def .= '<label row="'.$proceedings_row.'" col="2"><name>total</name><args><bold>true</bold><label>'.number_format($balance, 2).'</label></args></label>';
+            <label row="'.$proceedings_row.'" col="1" halign="right"><name></name><args><bold>true</bold><label>Totale</label></args></label>
+            <label row="'.$proceedings_row.'" col="2" halign="right"><name>total</name><args><bold>true</bold><label>'.$country->formatMoney($total).'</label></args></label>';
 
         $gXml_def .= '</children>
                     </table>
               </children>
-            </vertgroup>
+            </vertgroup>';
+
+
+        // table Situazione Economica
+        $real_costs_row = 0;
+        $real_costs_headers[0]['label'] = 'Costi Reali';
+
+        $gXml_def .= '    <vertgroup><children>
+            <label><name>situazione_economica</name><args><label>Situazione Economica</label><bold>true</bold></args></label>
+            <table>
+              <args><headers type="array">'.WuiXml::encode($real_costs_headers).'</headers></args>
+                <children>';
+        
+        $domain_da = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')
+            ->getCurrentDomain()
+            ->getDataAccess();
+
+        $sql = "SELECT  *
+                FROM    innowork_billing_invoices
+                WHERE   projectid = $projectid";
+
+        $invoices_rows_query = $domain_da->execute($sql);
+
+        $invoices_amount = 0;
+        while (!$invoices_rows_query->eof) {
+            $invoices_amount += $invoices_rows_query->getFields('amount');
+            $invoices_rows_query->moveNext();
+        }
+
+        $gXml_def .= '
+            <label row="'.$real_costs_row.'" col="0" halign="right"><name></name><args><label>Totale fatturato</label></args></label>
+            <label row="'.$real_costs_row.'" col="1" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($invoices_amount).'</label></args></label>';
+
+
+        $costs_timesheet = 0;
+        $timesheet_rows = array();
+
+        $sql = "SELECT  ts.userid AS userid, ts.spenttime as senttime
+                FROM    innowork_timesheet AS ts 
+                WHERE   ts.itemid = $projectid";
+
+        $timesheet_rows_query = $domain_da->execute($sql);
+
+        while (!$timesheet_rows_query->eof) {
+            $userid = $timesheet_rows_query->getFields('userid');
+            
+            $senttime_for_user = $timesheet_rows['senttime_for_user'][$userid] + $timesheet_rows_query->getFields('senttime');
+            $hours = 0;
+            $minutes = 0;
+            list($h, $m) = explode('.', number_format($senttime_for_user, 2));
+            $hours += $h; 
+            $minutes += $m;
+            if ($minutes >= 60) {
+                $minutes -= 60;
+                $hours += 1;
+            }
+            $timesheet_rows['senttime_for_user'][$userid] = (float) $hours.".".$minutes;
+
+            $timesheet_rows_query->moveNext();
+        }
+
+        foreach ($timesheet_rows['senttime_for_user'] as $userid => $senttime) {
+
+            $amount = 0;
+            $cost = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getInternalCost($userid);
+            list($hours, $minutes) = explode('.', number_format($senttime, 2));
+            $amount += round(($cost * ($hours + ((1/60)*$minutes))), 2, PHP_ROUND_HALF_DOWN);
+
+            $total_amount += $amount;
+
+        }
+
+        $costs_timesheet = -$total_amount;
+        
+        $gXml_def .= '
+            <label row="'.++$real_costs_row.'" col="0" halign="right"><name></name><args><label>Costi timesheet</label></args></label>
+            <label row="'.$real_costs_row.'" col="1" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($costs_timesheet).'</label></args></label>';
+
+        $total_real_costs = $invoices_amount + $costs_timesheet;
+
+        $gXml_def .= '
+            <label row="'.++$real_costs_row.'" col="0" halign="right"><name></name><args><bold>true</bold><label>Totale</label></args></label>
+            <label row="'.$real_costs_row.'" col="1" halign="right"><name>totalsentamount</name><args><bold>true</bold><label>'.$country->formatMoney($total_real_costs).'</label></args></label>';
+
+        $gXml_def .= '</children>
+                    </table>
+              </children>
+            </vertgroup>';
+
+
+        $gXml_def .= '    </children>
+            </horizgroup>
+
             <horizbar/>
             <label><name>fees</name><args><label>'.WuiXml::cdata($gLocale->getStr('fees.label')).'</label><bold>true</bold></args></label>
           	<table>
