@@ -45,7 +45,7 @@
 
 		<domaingroup name="projects"
 			catalog="innowork-projects::projects_misc" />
-		
+
         <catalog name="innowork-projects" />
 
 		<!-- Projects -->
@@ -77,7 +77,7 @@
         <permission name="view_all_projects" title="view_all_projects" description="" catalog="innowork-projects::roles" defaultroles="accounting,seniormanager" />
 
         <!-- Tasks -->
-        
+
         <domainpanel name="innoworktasks"
             category="projects" themeicon="kword" themeicontype="apps"
             catalog="innowork-projects::tasks_misc" />
@@ -85,7 +85,7 @@
             category="preferences"
             themeicon="plan" themeicontype="apps"
             catalog="innowork-projects::tasks_misc" />
-            
+
         <domaintable name="innowork_projects_tasks"
             file="innowork_projects_tasks.xml" />
         <domaintable name="innowork_projects_tasks_messages"
@@ -108,7 +108,7 @@
             file="InnoworkMyTasksDashboardWidget.php"
             catalog="innowork-projects::tasks_dashboard"
             title="mytasks"
-            class="\\Shared\\Dashboard\\InnoworkMyTasksDashboardWidget" />
+            class="\Shared\Dashboard\InnoworkMyTasksDashboardWidget" />
 
 	</components>
 </application>
