@@ -76,7 +76,7 @@ if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticConta
     );
 }
 
-if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('edit_timesheet_fees')) {
     $gToolbars['projects']['economicsituationproject'] = array(
         'label' => $gLocale->getStr('economicsituationproject.toolbar'),
         'themeimage' => 'listdetailed',
@@ -146,7 +146,7 @@ function action_newproject($eventData)
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     );
 
-    if ( 
+    if (
         $innowork_project->Create(
             $eventData,
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
@@ -433,7 +433,7 @@ function main_default($eventData)
     } else {
         // Customer
         $customer_filter_sk = new WuiSessionKey('customer_filter');
-        if (strlen($customer_filter_sk->mValue) and $customer_filter_sk->mValue != 0) 
+        if (strlen($customer_filter_sk->mValue) and $customer_filter_sk->mValue != 0)
             $search_keys['customerid'] = $customer_filter_sk->mValue;
         $eventData['filter_customerid'] = $customer_filter_sk->mValue;
 
@@ -445,13 +445,13 @@ function main_default($eventData)
 
         // Status
         $status_filter_sk = new WuiSessionKey('status_filter');
-        if (strlen($status_filter_sk->mValue) and $status_filter_sk->mValue != 0) 
+        if (strlen($status_filter_sk->mValue) and $status_filter_sk->mValue != 0)
             $search_keys['status'] = $status_filter_sk->mValue;
         $eventData['filter_statusid'] = $status_filter_sk->mValue;
 
         // Type
         $type_filter_sk = new WuiSessionKey('type_filter');
-        if (strlen($type_filter_sk->mValue) and $type_filter_sk->mValue != 0) 
+        if (strlen($type_filter_sk->mValue) and $type_filter_sk->mValue != 0)
             $search_keys['type'] = $type_filter_sk->mValue;
         $eventData['filter_typeid'] = $type_filter_sk->mValue;
     }
@@ -470,8 +470,8 @@ function main_default($eventData)
     );
 
     $table = new WuiTable(
-        'projects_done_'.$eventData['done'], 
-        array('sessionobjectusername' => $eventData['done'] == 'true' ? 'done' : 'undone') 
+        'projects_done_'.$eventData['done'],
+        array('sessionobjectusername' => $eventData['done'] == 'true' ? 'done' : 'undone')
     );
     $sort_by = 0;
     if (strlen($table->mSortDirection)) $sort_order = $table->mSortDirection;
@@ -611,7 +611,7 @@ function main_default($eventData)
                     <action>'
                     .project_cdata(
                         WuiEventsCall::buildEventsCallString(
-                            '', 
+                            '',
                             array(
                                 array('view', 'default', array()),
                                 array('action', 'erasefilter', array())
@@ -699,7 +699,7 @@ function main_default($eventData)
                 <rows>'.$num_projects.'</rows>
               </args>
               <children>';
-    
+
     $innowork_core = InnoworkCore::instance(
         'innoworkcore',
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
@@ -836,7 +836,7 @@ function main_default($eventData)
                                         'themeimagetype' => 'mini',
                                         'horiz' => 'true',
                                         'action' => WuiEventsCall::buildEventsCallString(
-                                            '', 
+                                            '',
                                             array(
                                                 array('view', 'default', ''),
                                                 array('action', 'editproject', array('id' => $id, 'done' => $done_action))
@@ -851,7 +851,7 @@ function main_default($eventData)
                                         'needconfirm' => 'true',
                                         'confirmmessage' => $gLocale->getStr('removeproject.confirm'),
                                         'action' => WuiEventsCall::buildEventsCallString(
-                                            '', 
+                                            '',
                                             array(
                                                 array('view', 'default', ''),
                                                 array('action', 'removeproject', array('id' => $id))
@@ -1269,7 +1269,6 @@ $gMain_disp->addEvent(
 );
 function main_economicsituationproject($eventData)
 {
-
     global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
     $headers[0]['label'] = $gLocale->getStr('project_nr.header');
@@ -1374,7 +1373,7 @@ function main_economicsituationproject($eventData)
                         <compact>true</compact>
                         <link>'
                         .WuiEventsCall::buildEventsCallString(
-                            '', 
+                            '',
                             array(
                                 array(
                                     'view',
@@ -1492,7 +1491,7 @@ function main_showproject($eventData)
             'SELECT id,fname,lname,username '.
             'FROM domain_users '.
             'WHERE username<>'.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText(User::getAdminUsername(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDomainId())).' '.
-            'ORDER BY lname,fname' 
+            'ORDER BY lname,fname'
         );
 
     $users = array();
@@ -2043,7 +2042,7 @@ function main_showproject($eventData)
             <label row="'.$proceedings_row.'" col="2" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($amount_report_not_sent).'</label></args></label>';
 
         $total = $totalSentAmount + $amount_report_not_sent;
-        
+
         $gXml_def .= '
             <label row="'.$proceedings_row++.'" col="0"><name></name><args><label></label></args></label>
             <label row="'.$proceedings_row.'" col="1" halign="right"><name></name><args><bold>true</bold><label>Totale</label></args></label>
@@ -2064,7 +2063,7 @@ function main_showproject($eventData)
             <table>
               <args><headers type="array">'.WuiXml::encode($real_costs_headers).'</headers></args>
                 <children>';
-        
+
         $invoices_handler = new InnoworkInvoice(
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
