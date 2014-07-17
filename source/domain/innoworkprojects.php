@@ -1277,7 +1277,7 @@ function main_economicsituationproject($eventData)
     $headers[2]['label'] = $gLocale->getStr('customer.header');
     $headers[3]['label'] = 'Totale fatturato';
     $headers[4]['label'] = 'Costi timesheet';
-    $headers[5]['label'] = 'Totale Costi Reali';
+    $headers[5]['label'] = 'Bilancio';
 
     $gXml_def ='<vertgroup>
         <name>economicsituationproject</name>
