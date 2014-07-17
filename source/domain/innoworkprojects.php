@@ -76,6 +76,18 @@ if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticConta
     );
 }
 
+if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
+    $gToolbars['projects']['economicsituationproject'] = array(
+        'label' => $gLocale->getStr('newproject.toolbar'),
+        'themeimage' => 'mathadd',
+        'horiz' => 'true',
+        'action' => WuiEventsCall::buildEventsCallString(
+            '', array(array('view', 'newproject', ''))
+        )
+    );
+}
+
+
 /*
 $gToolbars['stats'] = array(
     'stats' => array(
@@ -1819,8 +1831,9 @@ function main_showproject($eventData)
         $fees = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getProjectFees($eventData['id']);
 
         $fees_headers[0]['label'] = $gLocale->getStr('fee_user.header');
-        $fees_headers[1]['label'] = $gLocale->getStr('fee_defaultfee.header');;
-        $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');;
+        $fees_headers[1]['label'] = $gLocale->getStr('fee_defaultfee.header');
+        $fees_headers[2]['label'] = $gLocale->getStr('fee_projectfee.header');
+        $fees_headers[3]['label'] = 'Costi interni';
 
         $gXml_def .= '<vertgroup><children>
 
@@ -1951,67 +1964,19 @@ function main_showproject($eventData)
               <args><headers type="array">'.WuiXml::encode($real_costs_headers).'</headers></args>
                 <children>';
         
-        $domain_da = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')
-            ->getCurrentDomain()
-            ->getDataAccess();
-
-        $sql = "SELECT  *
-                FROM    innowork_billing_invoices
-                WHERE   projectid = $projectid";
-
-        $invoices_rows_query = $domain_da->execute($sql);
-
-        $invoices_amount = 0;
-        while (!$invoices_rows_query->eof) {
-            $invoices_amount += $invoices_rows_query->getFields('amount');
-            $invoices_rows_query->moveNext();
-        }
+        $invoices_handler = new InnoworkInvoice(
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+        );
+        $invoices_amount = $invoices_handler->GetAmountInvoiceForProject($projectid);
 
         $gXml_def .= '
             <label row="'.$real_costs_row.'" col="0" halign="right"><name></name><args><label>Totale fatturato</label></args></label>
             <label row="'.$real_costs_row.'" col="1" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($invoices_amount).'</label></args></label>';
 
 
-        $costs_timesheet = 0;
-        $timesheet_rows = array();
+        $costs_timesheet = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getAmountTimesheet($projectid);
 
-        $sql = "SELECT  ts.userid AS userid, ts.spenttime as senttime
-                FROM    innowork_timesheet AS ts 
-                WHERE   ts.itemid = $projectid";
-
-        $timesheet_rows_query = $domain_da->execute($sql);
-
-        while (!$timesheet_rows_query->eof) {
-            $userid = $timesheet_rows_query->getFields('userid');
-            
-            $senttime_for_user = $timesheet_rows['senttime_for_user'][$userid] + $timesheet_rows_query->getFields('senttime');
-            $hours = 0;
-            $minutes = 0;
-            list($h, $m) = explode('.', number_format($senttime_for_user, 2));
-            $hours += $h; 
-            $minutes += $m;
-            if ($minutes >= 60) {
-                $minutes -= 60;
-                $hours += 1;
-            }
-            $timesheet_rows['senttime_for_user'][$userid] = (float) $hours.".".$minutes;
-
-            $timesheet_rows_query->moveNext();
-        }
-
-        foreach ($timesheet_rows['senttime_for_user'] as $userid => $senttime) {
-
-            $amount = 0;
-            $cost = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getInternalCost($userid);
-            list($hours, $minutes) = explode('.', number_format($senttime, 2));
-            $amount += round(($cost * ($hours + ((1/60)*$minutes))), 2, PHP_ROUND_HALF_DOWN);
-
-            $total_amount += $amount;
-
-        }
-
-        $costs_timesheet = -$total_amount;
-        
         $gXml_def .= '
             <label row="'.++$real_costs_row.'" col="0" halign="right"><name></name><args><label>Costi timesheet</label></args></label>
             <label row="'.$real_costs_row.'" col="1" halign="right"><name>totalsentamount</name><args><label>'.$country->formatMoney($costs_timesheet).'</label></args></label>';
@@ -2052,6 +2017,7 @@ function main_showproject($eventData)
         }
         */
         $fee_where = 'local';
+        $internalcosts = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getInternalCosts();
 
         while (!$users_query->eof) {
             $user_id = $users_query->getFields('id');
@@ -2059,7 +2025,8 @@ function main_showproject($eventData)
             $gXml_def .= '<label row="'.$fees_row.'" col="0"><name>fee</name><args><label>'.$users_query->getFields('lname').
                 ' '.$users_query->getFields('fname').'</label></args></label>
         			<label row="'.$fees_row.'" col="1"><name>fee</name><args><label>'.$default_fees[$user_id][$fee_where].'</label></args></label>
-        			<string row="'.$fees_row.'" col="2"><name>fee_'.$user_id.'</name><args><disp>action</disp><size>7</size><value>'.$fees[$user_id].'</value></args></string>';
+        			<string row="'.$fees_row.'" col="2"><name>fee_'.$user_id.'</name><args><disp>action</disp><size>7</size><value>'.$fees[$user_id].'</value></args></string>
+                    <label row="'.$fees_row.'" col="3"><name>fee</name><args><label>'.$internalcosts[$user_id].'</label></args></label>';
 
             $users_query->moveNext();
             $fees_row++;
@@ -2082,18 +2049,8 @@ function main_showproject($eventData)
     $row = 0;
 
     $setdone_array = array(
-    		array(
-    				'view',
-    				'default',
-    				''
-    		),
-    		array(
-    				'action',
-    				'editproject',
-    				array(
-    						'id' => $eventData['id'],
-    						'done' => 'true'
-    				) )
+        array('view', 'default', ''),
+        array('action', 'editproject', array('id' => $eventData['id'], 'done' => 'true'))
     );
 
     // Related dossiers
