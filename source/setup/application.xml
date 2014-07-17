@@ -16,6 +16,8 @@
 			<dependency>innowork-core[3.4.0]</dependency>
             <dependency>innowork-groupware</dependency>
 			<dependency>phplotlib[5.0-3]</dependency>
+            <dependency>innowork-billing[2.1.0]</dependency>
+            <dependency>innowork-timesheet-customer-reporting[1.0.0]</dependency>
 			<suggestion>innowork-timesheet</suggestion>
 		</dependencies>
 		<options>
