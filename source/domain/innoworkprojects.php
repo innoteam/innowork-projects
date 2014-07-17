@@ -78,11 +78,11 @@ if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticConta
 
 if (\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->hasPermission('add_projects')) {
     $gToolbars['projects']['economicsituationproject'] = array(
-        'label' => $gLocale->getStr('newproject.toolbar'),
-        'themeimage' => 'mathadd',
+        'label' => $gLocale->getStr('economicsituationproject.toolbar'),
+        'themeimage' => 'listdetailed',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString(
-            '', array(array('view', 'newproject', ''))
+            '', array(array('view', 'economicsituationproject', ''))
         )
     );
 }
@@ -1350,6 +1350,195 @@ function main_newproject( $eventData )
   </children>
 </vertgroup>';
 }
+
+$gMain_disp->addEvent(
+    'economicsituationproject',
+    'main_economicsituationproject'
+);
+function main_economicsituationproject($eventData)
+{
+
+    global $gLocale, $gPage_title, $gXml_def, $gPage_status;
+
+    $headers[0]['label'] = $gLocale->getStr('project_nr.header');
+    $headers[1]['label'] = $gLocale->getStr('name.header');
+    $headers[2]['label'] = $gLocale->getStr('customer.header');
+    $headers[3]['label'] = 'Totale fatturato';
+    $headers[4]['label'] = 'Costi timesheet';
+    $headers[5]['label'] = 'Totale Costi Reali';
+
+    $gXml_def ='<vertgroup>
+        <name>economicsituationproject</name>
+            <children>
+
+                <label><name>filter</name>
+                  <args>
+                    <bold>true</bold>
+                    <label>Situazione Economica</label>
+                  </args>
+                </label>';
+
+
+    $projects = new InnoworkProject(
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+    );
+
+    $search_results = $projects->Search(
+        '',
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
+    );
+
+    $num_projects = count($search_results);
+
+    $gXml_def .='<table><name>projects_done_'.$eventData['done'].'</name>
+        <args>
+            <headers type="array">'.WuiXml::encode($headers).'</headers>
+            <rowsperpage>15</rowsperpage>
+            <pagesactionfunction>projects_list_action_builder</pagesactionfunction>
+            <pagenumber>'.(isset($eventData['pagenumber']) ? $eventData['pagenumber'] : '').'</pagenumber>
+            <sessionobjectusername>'.( $eventData['done'] == 'true' ? 'done' : 'undone' ).'</sessionobjectusername>
+            <sortby>'.$sort_by.'</sortby>
+            <sortdirection>'.$sort_order.'</sortdirection>
+            <rows>'.$num_projects.'</rows>
+        </args>
+        <children>';
+
+    $innowork_core = InnoworkCore::instance(
+        'innoworkcore',
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+    );
+
+    $summaries = $innowork_core->getSummaries();
+
+    $row = 0;
+    $page = 1;
+
+    if (isset($eventData['pagenumber'])) {
+        $page = $eventData['pagenumber'];
+    } else {
+        include_once 'shared/wui/WuiTable.php';
+
+        $table = new WuiTable(
+            'projects_done_'.$eventData['done'],
+            array('sessionobjectusername' => $eventData['done'] == 'true' ? 'done' : 'undone')
+        );
+
+        $page = $table->mPageNumber;
+    }
+
+    if ($page > ceil($num_projects / 15)) $page = ceil($num_projects / 15);
+
+    $from = ( $page * 15 ) - 15;
+    $to = $from + 15 - 1;
+
+
+    while (list($id, $fields) = each($search_results)) {
+
+        if ($row >= $from and $row <= $to) {
+
+            $innowork_customer = new InnoworkCompany(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
+                $fields['customerid']
+            );
+
+            $cust_data = $innowork_customer->getItem();
+
+            $gXml_def .=
+                '<label row="'.$row.'" col="0">
+                  <args><label>'.project_cdata($fields['id']).'</label></args>
+                </label>
+
+                <vertgroup row="'.$row.'" col="1">
+                  <args><compact>true</compact></args>
+                  <children>
+                    <link>
+                      <args>
+                        <label>'.project_cdata($fields['name']).'</label>
+                        <bold>true</bold>
+                        <nowrap>true</nowrap>
+                        <compact>true</compact>
+                        <link>'
+                        .WuiEventsCall::buildEventsCallString(
+                            '', 
+                            array(
+                                array(
+                                    'view',
+                                    'showproject',
+                                    array('id' => $id)
+                                )
+                            )
+                        ).'</link>
+                        </args>
+                    </link>
+                    <label>
+                      <args>
+                        <label>'.project_cdata($fields['description']).'</label>
+                        <nowrap>false</nowrap>
+                        <compact>true</compact>
+                      </args>
+                    </label>
+                  </children>
+                </vertgroup>
+                <link row="'.$row.'" col="2"><name>customer</name>
+                  <args>
+                    <link>'
+                    .project_cdata(
+                        WuiEventsCall::buildEventsCallString(
+                            $summaries['directorycompany']['domainpanel'],
+                            array(
+                                array(
+                                    $summaries['directorycompany']['showdispatcher'],
+                                    $summaries['directorycompany']['showevent'],
+                                    array('id' => $fields['customerid'])
+                                )
+                            )
+                        )
+                    ).'</link>
+                    <label>'.project_cdata($cust_data['companyname']).'</label>
+                  </args>
+                </link>';
+
+            $total_real_costs = 0;
+
+            $invoices_handler = new InnoworkInvoice(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+            );
+            $invoices_amount = $invoices_handler->GetAmountInvoiceForProject($fields['id']);
+
+            $country = new LocaleCountry(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry()
+            );
+
+            $gXml_def .='<label row="'.$row.'" col="3" halign="right">
+                  <args><label>'.project_cdata($country->formatMoney($invoices_amount)).'</label></args>
+                </label>';
+
+            $costs_timesheet = \Innowork\Timesheet\TimesheetCustomerReportingUtils::getAmountTimesheet($fields['id']);
+
+            $gXml_def .='<label row="'.$row.'" col="4" halign="right">
+                  <args><label>'.project_cdata($country->formatMoney($costs_timesheet)).'</label></args>
+                </label>';
+
+            $total_real_costs = $invoices_amount + $costs_timesheet;
+
+            $gXml_def .='<label row="'.$row.'" col="5" halign="right">
+                  <args><bold>true</bold><label>'.project_cdata($country->formatMoney($total_real_costs)).'</label></args>
+                </label>';
+        }
+        $row++;
+    }
+
+    $gXml_def .='  </children>
+                </table>
+            </children>
+        </vertgroup>';
+
+}
+
 
 $gMain_disp->addEvent(
     'showproject',
