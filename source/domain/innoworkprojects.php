@@ -343,6 +343,13 @@ $gAction_disp->Dispatch();
 //
 $gMain_disp = new WuiDispatcher('view');
 
+function economic_list_action_builder($pageNumber)
+{
+    return WuiEventsCall::buildEventsCallString(
+        '', array(array('view', 'economicsituationproject', array('pagenumber' => $pageNumber)))
+    );
+}
+
 function projects_list_action_builder($pageNumber)
 {
     return WuiEventsCall::buildEventsCallString(
@@ -1300,7 +1307,7 @@ function main_economicsituationproject($eventData)
         <args>
             <headers type="array">'.WuiXml::encode($headers).'</headers>
             <rowsperpage>15</rowsperpage>
-            <pagesactionfunction>projects_list_action_builder</pagesactionfunction>
+            <pagesactionfunction>economic_list_action_builder</pagesactionfunction>
             <pagenumber>'.(isset($eventData['pagenumber']) ? $eventData['pagenumber'] : '').'</pagenumber>
             <sessionobjectusername>'.( $eventData['done'] == 'true' ? 'done' : 'undone' ).'</sessionobjectusername>
             <sortby>'.$sort_by.'</sortby>
