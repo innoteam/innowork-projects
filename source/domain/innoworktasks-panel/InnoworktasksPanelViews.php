@@ -907,7 +907,7 @@ $this->toolbars['mail'] = array(
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
         $search_results = $innowork_projects->search(
-                '',
+                array('done' => \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()->fmtfalse),
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
         $projects[0] = $this->localeCatalog->getStr('noproject.label');
@@ -956,13 +956,20 @@ $this->toolbars['mail'] = array(
                   </args>
                 </label>
     
-                <combobox row="0" col="1"><name>projectid</name>
-                  <args>
-                    <disp>action</disp>
-                    <elements type="array">'.WuiXml::encode($projects).'</elements>
-                  </args>
-                </combobox>
-    
+    			<string row="0" col="1"><name>projectid</name>
+              <args>
+            		<id>projectid</id>
+            		<autocomplete>true</autocomplete>
+            		<autocompleteminlength>2</autocompleteminlength>
+            		<autocompletesearchurl>'.WuiXml::cdata(WuiEventsCall::buildEventsCallString(
+                    '',
+                    array(array('view', 'searchproject'))
+                )).'</autocompletesearchurl>
+                <disp>action</disp>
+                <size>30</size>
+              </args>
+            		</string>
+
               </children>
             </grid>
           </children>
@@ -1691,6 +1698,22 @@ $this->toolbars['mail'] = array(
         echo $wui->render();
     
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->halt();
+    }
+    
+    public function viewSearchproject($eventData)
+    {
+        $domain_da = InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess();
+         
+        $query = $domain_da->execute('SELECT id, name FROM innowork_projects WHERE name LIKE "%'.$_GET['term'].'%" AND done <> '.$domain_da->formatText($domain_da->fmttrue));
+        $k = 0;
+         
+        while (!$query->eof) {
+            $content[$k]['id'] = $query->getFields('id');
+            $content[$k++]['value'] = $query->getFields('name');
+            $query->moveNext();
+        }
+        echo json_encode($content);
+        InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->halt();
     }
 }
 

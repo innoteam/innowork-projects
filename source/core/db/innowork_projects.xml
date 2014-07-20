@@ -23,6 +23,8 @@
         <field  name="estimatedrevenue" type="text"/>
         <field  name="realrevenue"  type="text"/>
         <field  name="sendtscustomerreport" type="boolean"/>
+        <field  name="tscustomerreportemail" type="text"/>
+        
 		<key	field="id"	type="unique"/>
 	</table>
 
