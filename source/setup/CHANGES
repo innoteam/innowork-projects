@@ -1,5 +1,5 @@
-1.x.x - 
-----------------
+1.4.1 - 2014/07/20
+------------------
 CHANGES:
 - Archived projects are filtered out when creating a new task. (Alex Pagnoni)
 - Opened by and assigned to fields are automatically set to the current user
@@ -9,6 +9,7 @@ NEW FEATURES:
 - Added project autocomplete when creating a new task. (Alex Pagnoni)
 - Added timesheet customer report email. (Alex Pagnoni)
 - Added support for timesheet roles. (Alex Pagnoni)
+- Added project economic summary. (Amanda Accalai)
 
 
 
