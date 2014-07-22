@@ -12,12 +12,7 @@ class InnoworkTask extends InnoworkItem
     public $mTypeTags = array('task');
     public $mParentType = 'project';
     public $mParentIdField = 'projectid';
-
     const ITEM_TYPE = 'task';
-
-    //var $mNoAcl = true;
-    //var $mNoLog = true;
-    //var $_mCreationAcl = InnoworkAcl::TYPE_PRIVATE;
 
     public function __construct($rrootDb, $rdomainDA, $itemId = 0)
     {
