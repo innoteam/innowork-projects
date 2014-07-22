@@ -9,7 +9,6 @@ class InnoworkTask extends InnoworkItem
     public $mNewEvent = 'newtask';
     public $mNoTrash = false;
     public $mConvertible = true;
-    public $mNoAcl = true;
     public $mTypeTags = array('task');
     public $mParentType = 'project';
     public $mParentIdField = 'projectid';
