@@ -46,6 +46,7 @@ class InnoworkProject extends InnoworkItem {
         $this->mKeys['realcost'] = 'text';
         $this->mKeys['realrevenue'] = 'text';
 
+        $this->mSearchResultKeys[] = 'id';
         $this->mSearchResultKeys[] = 'name';
         $this->mSearchResultKeys[] = 'description';
         $this->mSearchResultKeys[] = 'customerid';
@@ -65,6 +66,7 @@ class InnoworkProject extends InnoworkItem {
         $this->mSearchResultKeys[] = 'realcost';
         $this->mSearchResultKeys[] = 'realrevenue';
 
+        $this->mViewableSearchResultKeys[] = 'id';
         $this->mViewableSearchResultKeys[] = 'name';
         $this->mViewableSearchResultKeys[] = 'description';
         $this->mViewableSearchResultKeys[] = 'customerid';
@@ -86,24 +88,24 @@ class InnoworkProject extends InnoworkItem {
         )
     {
         $result = false;
-        
+
             if ($params['done'] == 'true') {
             	$params['done'] = $this->mrDomainDA->fmttrue;
             } else {
             	$params['done'] = $this->mrDomainDA->fmtfalse;
             }
-            
+
             // Send customer report by default, if not set
             if (!isset($params['sendtscustomerreport'])) {
                 $params['sendtscustomerreport'] = 'true';
             }
-            
+
             if ($params['sendtscustomerreport'] == 'true') {
                 $params['sendtscustomerreport'] = $this->mrDomainDA->fmttrue;
             } else {
                 $params['sendtscustomerreport'] = $this->mrDomainDA->fmtfalse;
             }
-            
+
             if (
                 !isset($params['customerid'] )
                 or !strlen( $params['customerid'] )
@@ -223,7 +225,7 @@ class InnoworkProject extends InnoworkItem {
                 $start = 1;
                 $update_str = '';
                 $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
-                
+
                 if ( isset($params['done'] ) )
                 {
                     if ( $params['done'] == 'true' ) $params['done'] = $this->mrDomainDA->fmttrue;
@@ -234,7 +236,7 @@ class InnoworkProject extends InnoworkItem {
                     if ( $params['sendtscustomerreport'] == 'true' ) $params['sendtscustomerreport'] = $this->mrDomainDA->fmttrue;
                     else $params['sendtscustomerreport'] = $this->mrDomainDA->fmtfalse;
                 }
-                
+
                 while ( list( $field, $value ) = each( $params ) )
                 {
                     if ( $field != 'id' )
@@ -327,7 +329,7 @@ class InnoworkProject extends InnoworkItem {
     {
         $result = false;
 
-        
+
 
         $search_result = $this->Search(
             array(

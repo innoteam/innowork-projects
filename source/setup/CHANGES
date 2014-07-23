@@ -3,6 +3,10 @@ x.x.x -
 CHANGES:
 - Added project as item parent type. (Alex Pagnoni)
 
+FIXES:
+- Fixed missing labels in items search results. (Alex Pagnoni)
+- Fixed missing relations in assignedto and openedby fields. (Alex Pagnoni)
+
 
 
 1.4.1 - 2014/07/20
