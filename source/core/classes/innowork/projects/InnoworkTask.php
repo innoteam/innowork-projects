@@ -27,8 +27,8 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['resolutionid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['creationdate'] = 'timestamp';
         $this->mKeys['done'] = 'boolean';
-        $this->mKeys['openedby'] = 'table:domain_users:username:integer';
-        $this->mKeys['assignedto'] = 'table:domain_users:username:integer';
+        $this->mKeys['openedby'] = 'userid';
+        $this->mKeys['assignedto'] = 'userid';
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
