@@ -2252,6 +2252,7 @@ function main_showproject($eventData)
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
+            <mainaction>true</mainaction>
             <action>'.project_cdata( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'view',
