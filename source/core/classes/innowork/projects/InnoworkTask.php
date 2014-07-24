@@ -21,6 +21,7 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['title'] = 'text';
         $this->mKeys['description'] = 'text';
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
+        $this->mKeys['typeid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['statusid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['priorityid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['resolutionid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
