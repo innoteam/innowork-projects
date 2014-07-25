@@ -2,6 +2,7 @@ x.x.x -
 ------------------
 CHANGES:
 - Added project as item parent type. (Alex Pagnoni)
+- Disabled add timesheet row when project is archived. (Alex Pagnoni)
 
 FIXES:
 - Fixed missing labels in items search results. (Alex Pagnoni)
