@@ -9,13 +9,10 @@ class InnoworkTask extends InnoworkItem
     public $mNewEvent = 'newtask';
     public $mNoTrash = false;
     public $mConvertible = true;
-    public $mNoAcl = true;
     public $mTypeTags = array('task');
+    public $mParentType = 'project';
+    public $mParentIdField = 'projectid';
     const ITEM_TYPE = 'task';
-
-    //var $mNoAcl = true;
-    //var $mNoLog = true;
-    //var $_mCreationAcl = InnoworkAcl::TYPE_PRIVATE;
 
     public function __construct($rrootDb, $rdomainDA, $itemId = 0)
     {
@@ -24,13 +21,14 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['title'] = 'text';
         $this->mKeys['description'] = 'text';
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
+        $this->mKeys['typeid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['statusid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['priorityid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['resolutionid'] = 'table:innowork_projects_tasks_fields_values:fieldvalue:integer';
         $this->mKeys['creationdate'] = 'timestamp';
         $this->mKeys['done'] = 'boolean';
-        $this->mKeys['openedby'] = 'integer';
-        $this->mKeys['assignedto'] = 'integer';
+        $this->mKeys['openedby'] = 'userid';
+        $this->mKeys['assignedto'] = 'userid';
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
@@ -42,7 +40,7 @@ class InnoworkTask extends InnoworkItem
         $this->mSearchResultKeys[] = 'done';
         $this->mSearchResultKeys[] = 'openedby';
         $this->mSearchResultKeys[] = 'assignedto';
-        
+
         $this->mViewableSearchResultKeys[] = 'id';
         $this->mViewableSearchResultKeys[] = 'title';
         $this->mViewableSearchResultKeys[] = 'projectid';
@@ -102,15 +100,15 @@ class InnoworkTask extends InnoworkItem
             if (!isset($params['typeid']) or !strlen($params['typeid'])) {
             	$params['typeid'] = '0';
             }
-            
+
             if (!isset($params['openedby']) or !strlen($params['openedby'])) {
             	$params['openedby'] = '0';
             }
-            
+
             if (!isset($params['assignedto']) or !strlen($params['assignedto'])) {
             	$params['assignedto'] = '0';
             }
-                        
+
         if (count($params)) {
             $item_id = $this->mrDomainDA->getNextSequenceValue( $this->mTable.'_id_seq' );
 

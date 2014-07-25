@@ -97,18 +97,6 @@ class InnoworkMyTasksDashboardWidget extends \Innomatic\Desktop\Dashboard\Dashbo
 
         $xml .= '<horizgroup><args><width>0%</width></args><children>';
 
-        if (count($search_result) > 0) {
-        	$xml .= '  <button>
-    <args>
-      <horiz>true</horiz>
-      <frame>false</frame>
-      <themeimage>zoom</themeimage>
-      <label>'.$locale_catalog->getStr('show_all_my_tasks.button').'</label>
-      <action>'.WuiXml::cdata(\Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('innoworktasks', array(array('view', 'default', array('filter' => 'true', 'filter_assignedto' => \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()))))).'</action>
-    </args>
-  </button>';
-        }
-
         $xml .= '
   <button>
     <args>
@@ -120,6 +108,18 @@ class InnoworkMyTasksDashboardWidget extends \Innomatic\Desktop\Dashboard\Dashbo
       <action>'.WuiXml::cdata(\Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('innoworktasks', array(array('view', 'newtask', array())))).'</action>
     </args>
   </button>';
+
+        if (count($search_result) > 0) {
+        	$xml .= '  <button>
+    <args>
+      <horiz>true</horiz>
+      <frame>false</frame>
+      <themeimage>zoom</themeimage>
+      <label>'.$locale_catalog->getStr('show_all_my_tasks.button').'</label>
+      <action>'.WuiXml::cdata(\Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString('innoworktasks', array(array('view', 'default', array('filter' => 'true', 'filter_assignedto' => \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()))))).'</action>
+    </args>
+  </button>';
+        }
 
   $xml .= '</children></horizgroup>
 
