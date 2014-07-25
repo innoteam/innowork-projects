@@ -1,7 +1,7 @@
-x.x.x -
+1.4.2 - 2014/07/25
 ------------------
 CHANGES:
-- Added project as item parent type. (Alex Pagnoni)
+- Added project as item parent type in InnoworkTask. (Alex Pagnoni)
 - Disabled add timesheet row when project is archived. (Alex Pagnoni)
 
 FIXES:
