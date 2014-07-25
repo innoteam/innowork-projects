@@ -226,6 +226,18 @@ function action_newtsrow(
         return;
     }
 
+    $innowork_dossier = new InnoworkProject(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        $eventData['projectid']
+    );
+
+    $pj_data = $innowork_dossier->getItem(InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId());
+
+    if ($pj_data['done'] == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
+        return;
+    }
+
     $timesheet = new \Innowork\Timesheet\Timesheet(
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -2344,6 +2356,8 @@ function main_timesheet(
 			$eventData['projectid']
 	);
 
+	$pj_data = $innowork_dossier->getItem(InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId());
+
 	$timesheet_manager = new \Innowork\Timesheet\Timesheet(
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
         	\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
@@ -2460,22 +2474,23 @@ function main_timesheet(
   </args>
   <children>';
 
-	$row = 1;
+	$row = 0;
 
 	$country = new LocaleCountry(
 			InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
 	);
 
-	$start_date_array = array(
-			'year' => date( 'Y' ),
-			'mon' => date( 'm' ),
-			'mday' => date( 'd' ),
-			'hours' => date( 'H' ),
-			'minutes' => '00',
-			'seconds' => '00'
-	);
+    if ($pj_data['done'] != InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue) {
+        $start_date_array = array(
+                'year' => date( 'Y' ),
+                'mon' => date( 'm' ),
+                'mday' => date( 'd' ),
+                'hours' => date( 'H' ),
+                'minutes' => '00',
+                'seconds' => '00'
+        );
 
-	$gXml_def .=
+        $gXml_def .=
 	'       <date row="0" col="0"><name>date</name>
               <args>
                 <disp>action</disp>
@@ -2549,6 +2564,10 @@ function main_timesheet(
       ).'</action>
     </args>
   </button>';
+
+        $row++;
+    }
+
 	foreach ( $timesheet as $ts_row )
 	{
 		if ($ts_row['consolidated'] == 't') {
