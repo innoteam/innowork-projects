@@ -1036,6 +1036,32 @@ $this->toolbars['mail'] = array(
 
         $task_data = $innowork_task->getItem(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId());
 
+        // Check if inowork-userstories is installed and enabled
+        $appDeps = new \Innomatic\Application\ApplicationDependencies(
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
+        );
+
+        if ($appDeps->isEnabled('innowork-userstories', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->domainid)) {
+            $userStoriesAvailable = true;
+
+            require_once('innowork/userstories/InnoworkUserStory.php');
+            $innoworkUserStories = new InnoworkUserStory(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
+            );
+            $userStoriesSearchResult = $innoworkUserStories->search(
+                array('projectid' => $task_data['projectid']),
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
+            );
+
+            $userStories['0'] = $this->localeCatalog->getStr('nouserstory.label');
+            while (list($id, $fields) = each($userStoriesSearchResult)) {
+                $userStories[$id] = $fields['title'];
+            }
+        } else {
+            $userStoriesAvailable = false;
+        }
+
         // Projects list
 
         $innowork_projects = new InnoworkProject(
@@ -1174,7 +1200,26 @@ $this->toolbars['mail'] = array(
                         <elements type="array">'.WuiXml::encode($projects).'</elements>
                         <default>'.$task_data['projectid'].'</default>
                       </args>
-                    </combobox>
+                    </combobox>';
+
+    if ($userStoriesAvailable) {
+        $this->xml .= '
+                    <label>
+                      <args>
+                        <label>'.$this->localeCatalog->getStr('userstory.label').'</label>
+                      </args>
+                    </label>
+
+                    <combobox><name>userstoryid</name>
+                      <args>
+                        <disp>action</disp>
+                        <elements type="array">'.WuiXml::encode($userStories).'</elements>
+                        <default>'.$task_data['userstoryid'].'</default>
+                      </args>
+                    </combobox>';
+    }
+
+        $this->xml .= '
 
                   </children>
                 </horizgroup>

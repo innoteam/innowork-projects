@@ -29,6 +29,8 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['done'] = 'boolean';
         $this->mKeys['openedby'] = 'userid';
         $this->mKeys['assignedto'] = 'userid';
+        $this->mKeys['iterationid'] = 'integer';
+        $this->mKeys['userstoryid'] = 'integer';
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
@@ -81,6 +83,11 @@ class InnoworkTask extends InnoworkItem
                 $this->mParentType = 'project';
                 $this->mParentId = $params['projectid'];
             }
+
+            if (
+                !isset($params['userstoryid'] )
+                or !strlen( $params['userstoryid'] )
+            ) $params['userstoryid'] = '0';
 
             if (
                 !isset($params['statusid'] )
@@ -146,6 +153,7 @@ class InnoworkTask extends InnoworkItem
                     break;
 
                 case 'projectid':
+                case 'userstoryid':
                 case 'statusid':
                 case 'priorityid':
                 case 'typeid':
@@ -217,6 +225,7 @@ class InnoworkTask extends InnoworkItem
                             break;
 
                         case 'projectid':
+                        case 'userstoryid':
                         case 'statusid':
                         case 'priorityid':
                         case 'typeid':
