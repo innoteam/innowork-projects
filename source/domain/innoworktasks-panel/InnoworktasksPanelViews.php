@@ -1200,10 +1200,20 @@ $this->toolbars['mail'] = array(
                         <elements type="array">'.WuiXml::encode($projects).'</elements>
                         <default>'.$task_data['projectid'].'</default>
                       </args>
-                    </combobox>';
+                    </combobox>
+                  </children>
+                </horizgroup>
+';
 
     if ($userStoriesAvailable) {
         $this->xml .= '
+                <horizgroup>
+                  <args>
+                    <align>middle</align>
+                    <width>0%</width>
+                  </args>
+                  <children>
+
                     <label>
                       <args>
                         <label>'.$this->localeCatalog->getStr('userstory.label').'</label>
@@ -1216,13 +1226,14 @@ $this->toolbars['mail'] = array(
                         <elements type="array">'.WuiXml::encode($userStories).'</elements>
                         <default>'.$task_data['userstoryid'].'</default>
                       </args>
-                    </combobox>';
+                    </combobox>
+                  </children>
+                </horizgroup>
+';
     }
 
         $this->xml .= '
 
-                  </children>
-                </horizgroup>
 
                 <horizgroup><args><width>0%</width></args><children>
 
