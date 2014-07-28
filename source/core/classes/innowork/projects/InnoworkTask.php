@@ -9,7 +9,7 @@ class InnoworkTask extends InnoworkItem
     public $mNewEvent = 'newtask';
     public $mNoTrash = false;
     public $mConvertible = true;
-    public $mTypeTags = array('task');
+    public $mTypeTags = array('task', 'technicaltask');
     public $mParentType = 'project';
     public $mParentIdField = 'projectid';
     const ITEM_TYPE = 'task';
@@ -34,6 +34,7 @@ class InnoworkTask extends InnoworkItem
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
+        $this->mSearchResultKeys[] = 'userstoryid';
         $this->mSearchResultKeys[] = 'typeid';
         $this->mSearchResultKeys[] = 'statusid';
         $this->mSearchResultKeys[] = 'priorityid';
