@@ -43,6 +43,7 @@ class InnoworkTask extends InnoworkItem
         $this->mSearchResultKeys[] = 'done';
         $this->mSearchResultKeys[] = 'openedby';
         $this->mSearchResultKeys[] = 'assignedto';
+        $this->mSearchResultKeys[] = 'iterationid';
 
         $this->mViewableSearchResultKeys[] = 'id';
         $this->mViewableSearchResultKeys[] = 'title';
@@ -161,6 +162,7 @@ class InnoworkTask extends InnoworkItem
                 case 'resolutionid':
                 case 'openedby':
                 case 'assignedto':
+                case 'iterationid':
                     if ( !strlen( $key ) ) $key = 0;
                     $keys .= $key_pre.$key;
                     $values .= $value_pre.$val;
@@ -233,6 +235,7 @@ class InnoworkTask extends InnoworkItem
                         case 'resolutionid':
                 		case 'openedby':
                 		case 'assignedto':
+                        case 'iterationid':
                         	if ( !strlen( $value ) ) $value = 0;
                             if ( !$start ) $update_str .= ',';
                             $update_str .= $field.'='.$value;
