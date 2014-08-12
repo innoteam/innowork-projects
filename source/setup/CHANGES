@@ -2,6 +2,7 @@ x.x.x
 ------------------
 NEW FEATURES:
 - Added support for user stories in tasks. (Alex Pagnoni)
+- Added impediment flag. (Alex Pagnoni)
 
 
 

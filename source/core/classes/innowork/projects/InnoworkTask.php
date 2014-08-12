@@ -31,6 +31,7 @@ class InnoworkTask extends InnoworkItem
         $this->mKeys['assignedto'] = 'userid';
         $this->mKeys['iterationid'] = 'integer';
         $this->mKeys['userstoryid'] = 'integer';
+        $this->mKeys['impediment'] = 'boolean';
 
         $this->mSearchResultKeys[] = 'title';
         $this->mSearchResultKeys[] = 'projectid';
@@ -44,6 +45,7 @@ class InnoworkTask extends InnoworkItem
         $this->mSearchResultKeys[] = 'openedby';
         $this->mSearchResultKeys[] = 'assignedto';
         $this->mSearchResultKeys[] = 'iterationid';
+        $this->mSearchResultKeys[] = 'impediment';
 
         $this->mViewableSearchResultKeys[] = 'id';
         $this->mViewableSearchResultKeys[] = 'title';
@@ -75,6 +77,12 @@ class InnoworkTask extends InnoworkItem
 
             if ( $params['done'] == 'true' ) $params['done'] = $this->mrDomainDA->fmttrue;
             else $params['done'] = $this->mrDomainDA->fmtfalse;
+
+        if ($params['impediment'] == 'true') {
+            $params['impediment'] = $this->mrDomainDA->fmttrue;
+        } else {
+            $params['impediment'] = $this->mrDomainDA->fmtfalse;
+        }
 
             if (
                 !isset($params['projectid'] )
@@ -141,6 +149,7 @@ class InnoworkTask extends InnoworkItem
                 case 'title':
                 case 'description':
                 case 'done':
+                case 'impediment':
                 case 'trashed':
                     $keys .= $key_pre.$key;
                     $values .= $value_pre.$this->mrDomainDA->formatText( $val );
@@ -206,12 +215,21 @@ class InnoworkTask extends InnoworkItem
                     else $params['done'] = $this->mrDomainDA->fmtfalse;
                 }
 
+                if (isset($params['impediment'])) {
+                    if ($params['impediment'] == 'true') {
+                        $params['impediment'] = $this->mrDomainDA->fmttrue;
+                    } else {
+                        $params['impediment'] = $this->mrDomainDA->fmtfalse;
+                    }
+                }
+
                 while ( list( $field, $value ) = each( $params ) ) {
                     if ( $field != 'id' ) {
                         switch ( $field ) {
                         case 'title':
                         case 'description':
                         case 'done':
+                        case 'impediment':
                         case 'trashed':
                             if ( !$start ) $update_str .= ',';
                             $update_str .= $field.'='.$this->mrDomainDA->formatText( $value );

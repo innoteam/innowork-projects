@@ -18,6 +18,7 @@
         <field  name="assignedto"  type="integer"/>
         <field  name="iterationid"  type="integer"/>
         <field  name="userstoryid" type="integer" />
+        <field  name="impediment"  type="boolean"/>
         <key    field="id"  type="unique"/>
     </table>
 

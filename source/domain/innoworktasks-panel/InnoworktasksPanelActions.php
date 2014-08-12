@@ -66,6 +66,12 @@ class InnoworktasksPanelActions extends \Innomatic\Desktop\Panel\PanelActions
     		$eventData['id']
     	);
 
+        if (isset($eventData['impediment']) and $eventData['impediment'] == 'on') {
+            $eventData['impediment'] = 'true';
+        } else {
+            $eventData['impediment'] = 'false';
+        }
+
     	if ($task->Edit($eventData)) {
     		$this->status = $this->localeCatalog->getStr('task_updated.status');
     	} else {

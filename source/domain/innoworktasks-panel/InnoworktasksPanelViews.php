@@ -1017,6 +1017,8 @@ $this->toolbars['mail'] = array(
             $eventData
     )
     {
+        $innomaticCore = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer');
+
         $locale_country = new \Innomatic\Locale\LocaleCountry(
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
         );
@@ -1326,6 +1328,18 @@ $this->toolbars['mail'] = array(
                       </args>
                     </combobox>
 
+                    <label row="1" col="2" halign="right">
+                      <args>
+                        <label>'.$this->localeCatalog->getStr('impediment.label').'</label>
+                      </args>
+                    </label>
+
+                    <checkbox row="1" col="3" halign="left">
+                        <name>impediment</name>
+                        <args>
+                            <disp>action</disp><checked>'.($task_data['impediment'] == $innomaticCore->getCurrentDomain()->getDataAccess()->fmttrue ? 'true' : 'false').'</checked>
+                        </args>
+                    </checkbox>
                   </children>
                 </grid>
 
