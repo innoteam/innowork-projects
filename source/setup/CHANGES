@@ -4,6 +4,8 @@ NEW FEATURES:
 - Added support for user stories in tasks. (Alex Pagnoni)
 - Added impediment flag. (Alex Pagnoni)
 
+CHANGES:
+- Added updating the list of user stories to select a project in InnoworktasksPanel. (Amanda Accalai)
 
 
 1.4.2 - 2014/07/25
@@ -21,7 +23,7 @@ FIXES:
 1.4.1 - 2014/07/20
 ------------------
 CHANGES:
-- Archived projects are filtered out when creating a new task. (Alex Pagnoni)
+- Archived projects are filtered cut when creating a new task. (Alex Pagnoni)
 - Opened by and assigned to fields are automatically set to the current user
   when creating a new task. (Alex Pagnoni)
 
