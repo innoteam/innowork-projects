@@ -141,11 +141,7 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
         $types['0'] = $this->localeCatalog->getStr('alltypes.label');
 
         // Filtering
-
         if (isset($eventData['filter'])) {
-            if ($eventData['filter_projectid'] != 0) {
-                $search_keys['projectid'] = $eventData['filter_projectid'];
-            } 
 
             // Project
             $project_filter_sk = new WuiSessionKey(
@@ -237,6 +233,7 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
                 $search_keys['assignedto'] = $eventData['filter_assignedto'];
             }
         } else {
+
             // Project
             $project_filter_sk = new WuiSessionKey('project_filter');
             if (strlen($project_filter_sk->mValue) and $project_filter_sk->mValue != 0) {
@@ -245,7 +242,6 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
             $eventData['filter_projectid'] = $project_filter_sk->mValue;
 
             // Priority
-
             $priority_filter_sk = new WuiSessionKey('priority_filter');
             if (strlen($priority_filter_sk->mValue) and $priority_filter_sk->mValue != 0) {
                 $search_keys['priorityid'] = $priority_filter_sk->mValue;
@@ -253,7 +249,6 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
             $eventData['filter_priorityid'] = $priority_filter_sk->mValue;
 
             // Status
-
             $status_filter_sk = new WuiSessionKey('status_filter');
             if (strlen($status_filter_sk->mValue) and $status_filter_sk->mValue != 0) {
                 $search_keys['statusid'] = $status_filter_sk->mValue;
@@ -261,16 +256,13 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
             $eventData['filter_statusid'] = $status_filter_sk->mValue;
 
             // Type
-
             $type_filter_sk = new WuiSessionKey('type_filter');
             if (strlen($type_filter_sk->mValue) and $type_filter_sk->mValue != 0) {
                 $search_keys['typeid'] = $type_filter_sk->mValue;
             }
-
             $eventData['filter_typeid'] = $type_filter_sk->mValue;
 
             // Resolution
-
             $resolution_filter_sk = new WuiSessionKey('resolution_filter');
             if (strlen($resolution_filter_sk->mValue) and $resolution_filter_sk->mValue != 0) {
                 $search_keys['resolutionid'] = $resolution_filter_sk->mValue;
@@ -279,26 +271,39 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
 
             // Year
             $year_filter_sk = new WuiSessionKey('year_filter');
-            if (strlen($year_filter_sk->mValue) and $year_filter_sk->mValue != 0) $_filter_year = $year_filter_sk->mValue;
+            if (strlen($year_filter_sk->mValue) and $year_filter_sk->mValue != 0) {
+                $_filter_year = $year_filter_sk->mValue;
+            } 
             $eventData['filter_year'] = $year_filter_sk->mValue;
 
             // Month
             $month_filter_sk = new WuiSessionKey('month_filter');
-            if (strlen($month_filter_sk->mValue) and $month_filter_sk->mValue != 0) $_filter_month = $month_filter_sk->mValue;
+            if (strlen($month_filter_sk->mValue) and $month_filter_sk->mValue != 0) {
+                $_filter_month = $month_filter_sk->mValue;
+            } 
             $eventData['filter_month'] = $month_filter_sk->mValue;
 
             // Day
             $day_filter_sk = new WuiSessionKey('day_filter');
-            if (strlen($day_filter_sk->mValue) and $day_filter_sk->mValue != 0) $_filter_day = $day_filter_sk->mValue;
+            if (strlen($day_filter_sk->mValue) and $day_filter_sk->mValue != 0) {
+                $_filter_day = $day_filter_sk->mValue;
+            } 
             $eventData['filter_day'] = $day_filter_sk->mValue;
 
             // Opened by
             $openedby_filter_sk = new WuiSessionKey('openedby_filter');
+            if (strlen($openedby_filter_sk->mValue) and $openedby_filter_sk->mValue != 0) {
+                $search_keys['openedby'] = $openedby_filter_sk->mValue;
+            } 
             $eventData['filter_openedby'] = $openedby_filter_sk->mValue;
 
             // Assigned to
             $assignedto_filter_sk = new WuiSessionKey('assignedto_filter');
+            if (strlen($assignedto_filter_sk->mValue) and $assignedto_filter_sk->mValue != 0) {
+                $search_keys['assignedto'] = $assignedto_filter_sk->mValue;
+            } 
             $eventData['filter_assignedto'] = $assignedto_filter_sk->mValue;
+
         }
 
         if (isset($_filter_year) or isset($_filter_month) or isset($_filter_day)) {
@@ -310,7 +315,8 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
         $users_query = $this->innomaticContainer->getCurrentDomain()->getDataAccess()->execute(
             'SELECT id,fname,lname '.
             'FROM domain_users '.
-            'WHERE username<>'.$this->innomaticContainer->getCurrentDomain()->getDataAccess()->formatText(
+            'WHERE username<>'
+            .$this->innomaticContainer->getCurrentDomain()->getDataAccess()->formatText(
                 User::getAdminUsername($this->innomaticContainer->getCurrentDomain()->getDomainId())
             ).' '.'ORDER BY lname,fname'
         );
@@ -326,7 +332,6 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
         if (!isset($search_keys) or !count($search_keys)) $search_keys = '';
 
         // Sorting
-
         $tab_sess = new WuiSessionKey('innoworktaskstab');
 
         if (!isset($eventData['done'])) $eventData['done'] = $tab_sess->mValue;
@@ -350,8 +355,11 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
         );
 
         $sort_by = 0;
-        if (strlen($table->mSortDirection)) $sort_order = $table->mSortDirection;
-        else $sort_order = 'down';
+        if (strlen($table->mSortDirection)) {
+            $sort_order = $table->mSortDirection;
+        } else {
+            $sort_order = 'down';
+        }
 
         if (isset($eventData['sortby'])) {
             if ($table->mSortBy == $eventData['sortby']) {
@@ -523,7 +531,7 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
                                 \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString(
                                     '', 
                                     array(
-                                        array('view', 'default', array('filter' => 'true'))
+                                        array('view', 'default', array('filter' => 'true', 'pagenumber' => '1'))
                                     )
                                 )
                             ).'</action>
@@ -542,7 +550,7 @@ class InnoworktasksPanelViews extends \Innomatic\Desktop\Panel\PanelViews
                                 \Innomatic\Wui\Dispatch\WuiEventsCall::buildEventsCallString(
                                     '', 
                                     array(
-                                        array('view', 'default', array()),
+                                        array('view', 'default', array('pagenumber' => '1')),
                                         array('action', 'erasefilter', array())
                                     )
                                 )
